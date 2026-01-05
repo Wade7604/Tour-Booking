@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roles Management - Admin Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+    <style>
+      .permission-badge {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .permission-badge:hover {
+        transform: scale(1.05);
+      }
+      .permission-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .selected-permission {
+        background-color: #0d6efd !important;
+        color: white !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h4><i class="bi bi-gear-fill"></i> Admin Panel</h4>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="/admin/index.html">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a class="nav-link" href="/admin/users/index.html">
+          <i class="bi bi-people-fill"></i> Users
+        </a>
+        <a class="nav-link active" href="/admin/roles/index.html">
+          <i class="bi bi-shield-fill"></i> Roles
+        </a>
+        <a class="nav-link" href="/admin/permissions/index.html">
+          <i class="bi bi-key-fill"></i> Permissions
+        </a>
+        <a class="nav-link" href="#tours">
+          <i class="bi bi-map-fill"></i> Tours
+        </a>
+        <a class="nav-link" href="#bookings">
+          <i class="bi bi-calendar-check-fill"></i> Bookings
+        </a>
+        <hr style="border-color: rgba(255, 255, 255, 0.3); margin: 20px 0" />
+        <a class="nav-link" href="../../index.html">
+          <i class="bi bi-house-fill"></i> Back to Home
+        </a>
+        <a class="nav-link" href="#" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="bi bi-shield-fill"></i> Roles Management</h2>
+          <button
+            class="btn btn-primary"
+            onclick="roleManager.showCreateModal()"
+          >
+            <i class="bi bi-plus-circle"></i> Create Role
+          </button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-primary">
+                <i class="bi bi-shield-fill"></i>
+              </div>
+              <div class="stat-value" id="totalRoles">0</div>
+              <div class="stat-label">Total Roles</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-success">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div class="stat-value" id="systemRoles">0</div>
+              <div class="stat-label">System Roles</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-info">
+                <i class="bi bi-shield-plus"></i>
+              </div>
+              <div class="stat-value" id="customRoles">0</div>
+              <div class="stat-label">Custom Roles</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-warning">
+                <i class="bi bi-key-fill"></i>
+              </div>
+              <div class="stat-value" id="avgPermissions">0</div>
+              <div class="stat-label">Avg Permissions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="searchRoles"
+                    placeholder="Search roles by name or display name..."
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filterType">
+                  <option value="">All Roles</option>
+                  <option value="system">System Roles</option>
+                  <option value="custom">Custom Roles</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button
+                  class="btn btn-outline-secondary w-100"
+                  id="refreshRoles"
+                >
+                  <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roles Table -->
+        <div class="card">
+          <div class="card-body">
+            <div
+              id="rolesLoading"
+              class="text-center py-5"
+              style="display: none"
+            >
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading roles...</p>
+            </div>
+
+            <div id="rolesTable">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Role Name</th>
+                      <th>Display Name</th>
+                      <th>Type</th>
+                      <th>Permissions</th>
+                      <th>Description</th>
+                      <th>Created At</th>
+                      <th width="200">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rolesTableBody">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <nav aria-label="Page navigation" class="mt-4">
+                <ul
+                  class="pagination justify-content-center"
+                  id="rolesPagination"
+                >
+                  <!-- Will be populated by JavaScript -->
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- API Config -->
+    <script src="/assets/js/api.js"></script>
+
+    <!-- Role Manager Script - External File -->
+    <script src="/assets/js/role.js"></script>
+  </body>
+</html>

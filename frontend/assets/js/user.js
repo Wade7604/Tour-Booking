@@ -4,11 +4,13 @@ class UserManager {
     this.limit = 20;
     this.searchTimeout = null;
     this.currentFilters = {};
+    this.allRoles = [];
   }
 
   // Initialize
-  init() {
+  async init() {
     this.setupEventListeners();
+    await this.loadAllRoles(); // Load roles trước
     this.loadUsers();
     this.loadStatistics();
   }
@@ -71,7 +73,22 @@ class UserManager {
       reindexAllBtn.addEventListener("click", () => this.reindexAllUsers());
     }
   }
-
+  async loadAllRoles() {
+    try {
+      const result = await API.request("/roles");
+      if (result.success) {
+        this.allRoles = result.data;
+      }
+    } catch (error) {
+      console.error("Error loading roles:", error);
+      // Fallback về roles mặc định nếu API lỗi
+      this.allRoles = [
+        { name: "user", displayName: "User" },
+        { name: "admin", displayName: "Admin" },
+        { name: "guide", displayName: "Guide" },
+      ];
+    }
+  }
   // Load Users
   async loadUsers(search = "") {
     const loading = document.getElementById("usersLoading");
@@ -427,100 +444,102 @@ class UserManager {
       this.showError("Failed to load user: " + error.message);
     }
   }
-
-  // Show Edit Modal
+  // Cũng update showEditModal để hiển thị dynamic roles trong dropdown (disabled)
   showEditModal(user) {
+    // Tạo options từ allRoles
+    const roleOptions = this.allRoles
+      .map(
+        (role) => `
+    <option value="${role.name}" ${user.role === role.name ? "selected" : ""}>
+      ${role.displayName}
+    </option>
+  `
+      )
+      .join("");
+
     const modalHtml = `
-      <div class="modal fade" id="editUserModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header bg-warning text-white">
-              <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Edit User</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="editUserForm">
-              <div class="modal-body">
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="editFullName" value="${
-                      user.fullName
-                    }" required>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Email <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control" id="editEmail" value="${
-                      user.email
-                    }" required>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Phone</label>
-                    <input type="tel" class="form-control" id="editPhone" value="${
-                      user.phone || ""
-                    }">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Avatar URL</label>
-                    <input type="url" class="form-control" id="editAvatar" value="${
-                      user.avatar || ""
-                    }">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Role</label>
-                    <select class="form-select" id="editRole" disabled>
-                      <option value="user" ${
-                        user.role === "user" ? "selected" : ""
-                      }>User</option>
-                      <option value="admin" ${
-                        user.role === "admin" ? "selected" : ""
-                      }>Admin</option>
-                      <option value="guide" ${
-                        user.role === "guide" ? "selected" : ""
-                      }>Guide</option>
-                    </select>
-                    <small class="text-muted">Use "Update Role" button below to change role</small>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Status</label>
-                    <select class="form-select" id="editStatus" disabled>
-                      <option value="active" ${
-                        user.status === "active" ? "selected" : ""
-                      }>Active</option>
-                      <option value="inactive" ${
-                        user.status === "inactive" ? "selected" : ""
-                      }>Inactive</option>
-                    </select>
-                    <small class="text-muted">Use "Update Status" button below to change status</small>
-                  </div>
-                </div>
-                
-                <div class="alert alert-info">
-                  <i class="bi bi-info-circle"></i> You can only update basic info (name, email, phone, avatar). Use the buttons below for role/status changes.
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                  <i class="bi bi-x-circle"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-info" onclick="userManager.showUpdateRoleModal('${
-                  user.id
-                }', '${user.role}')">
-                  <i class="bi bi-shield-fill"></i> Update Role
-                </button>
-                <button type="button" class="btn btn-warning" onclick="userManager.showUpdateStatusModal('${
-                  user.id
-                }', '${user.status}')">
-                  <i class="bi bi-flag-fill"></i> Update Status
-                </button>
-                <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-check-circle"></i> Save Changes
-                </button>
-              </div>
-            </form>
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Edit User</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
+          <form id="editUserForm">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="editFullName" value="${
+                    user.fullName
+                  }" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Email <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" id="editEmail" value="${
+                    user.email
+                  }" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Phone</label>
+                  <input type="tel" class="form-control" id="editPhone" value="${
+                    user.phone || ""
+                  }">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Avatar URL</label>
+                  <input type="url" class="form-control" id="editAvatar" value="${
+                    user.avatar || ""
+                  }">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Role</label>
+                  <select class="form-select" id="editRole" disabled>
+                    ${roleOptions}
+                  </select>
+                  <small class="text-muted">Use "Update Role" button below to change role</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="editStatus" disabled>
+                    <option value="active" ${
+                      user.status === "active" ? "selected" : ""
+                    }>Active</option>
+                    <option value="inactive" ${
+                      user.status === "inactive" ? "selected" : ""
+                    }>Inactive</option>
+                  </select>
+                  <small class="text-muted">Use "Update Status" button below to change status</small>
+                </div>
+              </div>
+              
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> You can only update basic info (name, email, phone, avatar). Use the buttons below for role/status changes.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="bi bi-x-circle"></i> Cancel
+              </button>
+              <button type="button" class="btn btn-info" onclick="userManager.showUpdateRoleModal('${
+                user.id
+              }', '${user.role}')">
+                <i class="bi bi-shield-fill"></i> Update Role
+              </button>
+              <button type="button" class="btn btn-warning" onclick="userManager.showUpdateStatusModal('${
+                user.id
+              }', '${user.status}')">
+                <i class="bi bi-flag-fill"></i> Update Status
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> Save Changes
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    `;
+    </div>
+  `;
 
     this.removeModal("editUserModal");
     document.body.insertAdjacentHTML("beforeend", modalHtml);
@@ -528,7 +547,6 @@ class UserManager {
     const modal = new bootstrap.Modal(document.getElementById("editUserModal"));
     modal.show();
 
-    // Handle form submission
     document.getElementById("editUserForm").addEventListener("submit", (e) => {
       e.preventDefault();
       this.saveUserEdits(user.id);
@@ -572,47 +590,50 @@ class UserManager {
     }
   }
 
-  // Show Update Role Modal
+  // Sửa lại showUpdateRoleModal để dùng dynamic roles
   showUpdateRoleModal(userId, currentRole) {
+    // Tạo options từ allRoles
+    const roleOptions = this.allRoles
+      .map(
+        (role) => `
+    <option value="${role.name}" ${currentRole === role.name ? "selected" : ""}>
+      ${role.displayName}
+    </option>
+  `
+      )
+      .join("");
+
     const modalHtml = `
-      <div class="modal fade" id="updateRoleModal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-              <h5 class="modal-title"><i class="bi bi-shield-fill"></i> Update User Role</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="updateRoleForm">
-              <div class="modal-body">
-                <div class="mb-3">
-                  <label class="form-label">Select New Role</label>
-                  <select class="form-select" id="newRole" required>
-                    <option value="user" ${
-                      currentRole === "user" ? "selected" : ""
-                    }>User</option>
-                    <option value="admin" ${
-                      currentRole === "admin" ? "selected" : ""
-                    }>Admin</option>
-                    <option value="guide" ${
-                      currentRole === "guide" ? "selected" : ""
-                    }>Guide</option>
-                  </select>
-                </div>
-                <div class="alert alert-warning">
-                  <i class="bi bi-exclamation-triangle"></i> Changing user role will affect their permissions!
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-info">
-                  <i class="bi bi-check-circle"></i> Update Role
-                </button>
-              </div>
-            </form>
+    <div class="modal fade" id="updateRoleModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title"><i class="bi bi-shield-fill"></i> Update User Role</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
+          <form id="updateRoleForm">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Select New Role</label>
+                <select class="form-select" id="newRole" required>
+                  ${roleOptions}
+                </select>
+              </div>
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> Changing user role will affect their permissions!
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-info">
+                <i class="bi bi-check-circle"></i> Update Role
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    `;
+    </div>
+  `;
 
     this.removeModal("updateRoleModal");
     document.body.insertAdjacentHTML("beforeend", modalHtml);

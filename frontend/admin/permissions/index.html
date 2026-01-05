@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Permissions Management - Admin Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h4><i class="bi bi-gear-fill"></i> Admin Panel</h4>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="/admin/index.html">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a class="nav-link" href="/admin/users/index.html">
+          <i class="bi bi-people-fill"></i> Users
+        </a>
+        <a class="nav-link" href="/admin/roles/index.html">
+          <i class="bi bi-shield-fill"></i> Roles
+        </a>
+        <a class="nav-link active" href="/admin/permissions/index.html">
+          <i class="bi bi-key-fill"></i> Permissions
+        </a>
+        <a class="nav-link" href="#tours">
+          <i class="bi bi-map-fill"></i> Tours
+        </a>
+        <a class="nav-link" href="#bookings">
+          <i class="bi bi-calendar-check-fill"></i> Bookings
+        </a>
+        <hr style="border-color: rgba(255, 255, 255, 0.3); margin: 20px 0" />
+        <a class="nav-link" href="../../index.html">
+          <i class="bi bi-house-fill"></i> Back to Home
+        </a>
+        <a class="nav-link" href="#" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="bi bi-key-fill"></i> Permissions Management</h2>
+          <button
+            class="btn btn-primary"
+            onclick="permissionManager.showCreateModal()"
+          >
+            <i class="bi bi-plus-circle"></i> Create Permission
+          </button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-primary">
+                <i class="bi bi-key-fill"></i>
+              </div>
+              <div class="stat-value" id="totalPermissions">0</div>
+              <div class="stat-label">Total Permissions</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-success">
+                <i class="bi bi-folder-fill"></i>
+              </div>
+              <div class="stat-value" id="totalResources">0</div>
+              <div class="stat-label">Resources</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-info">
+                <i class="bi bi-lightning-fill"></i>
+              </div>
+              <div class="stat-value" id="totalActions">0</div>
+              <div class="stat-label">Unique Actions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="searchPermissions"
+                    placeholder="Search permissions by name..."
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" id="filterResource">
+                  <option value="">All Resources</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <button
+                  class="btn btn-outline-secondary w-100"
+                  id="refreshPermissions"
+                >
+                  <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Permissions Table -->
+        <div class="card">
+          <div class="card-body">
+            <div
+              id="permissionsLoading"
+              class="text-center py-5"
+              style="display: none"
+            >
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading permissions...</p>
+            </div>
+
+            <div id="permissionsTable">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Name</th>
+                      <th>Resource</th>
+                      <th>Action</th>
+                      <th>Description</th>
+                      <th>Created At</th>
+                      <th width="150">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="permissionsTableBody">
+                    <!-- Will be populated by JavaScript -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <nav aria-label="Page navigation" class="mt-4">
+                <ul
+                  class="pagination justify-content-center"
+                  id="permissionsPagination"
+                >
+                  <!-- Will be populated by JavaScript -->
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- API Config -->
+    <script src="../../assets/js/api.js"></script>
+
+    <!-- Permission Manager Script -->
+    <script>
+      class PermissionManager {
+        constructor() {
+          this.currentPage = 1;
+          this.limit = 20;
+          this.searchTimeout = null;
+          this.currentFilters = {};
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.loadPermissions();
+          this.loadStatistics();
+          this.loadResourcesFilter();
+        }
+
+        setupEventListeners() {
+          const searchInput = document.getElementById("searchPermissions");
+          if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+              clearTimeout(this.searchTimeout);
+              this.searchTimeout = setTimeout(() => {
+                this.currentPage = 1;
+                this.loadPermissions(e.target.value);
+              }, 500);
+            });
+          }
+
+          const filterResource = document.getElementById("filterResource");
+          if (filterResource) {
+            filterResource.addEventListener("change", (e) => {
+              this.currentFilters.resource = e.target.value || undefined;
+              this.currentPage = 1;
+              this.loadPermissions();
+            });
+          }
+
+          const refreshBtn = document.getElementById("refreshPermissions");
+          if (refreshBtn) {
+            refreshBtn.addEventListener("click", () => {
+              this.loadPermissions();
+              this.loadStatistics();
+            });
+          }
+        }
+
+        async loadPermissions(search = "") {
+          const loading = document.getElementById("permissionsLoading");
+          const table = document.getElementById("permissionsTable");
+
+          if (loading) loading.style.display = "block";
+          if (table) table.style.display = "none";
+
+          try {
+            const params = new URLSearchParams();
+            params.append("page", this.currentPage);
+            params.append("limit", this.limit);
+
+            if (this.currentFilters.resource) {
+              const result = await API.request(
+                `/permissions/resource/${this.currentFilters.resource}`
+              );
+              if (result.success) {
+                this.displayPermissions(result.data);
+              }
+            } else {
+              const result = await API.request(`/permissions?${params}`);
+              if (result.success) {
+                let permissions = result.data;
+
+                // Filter by search term
+                if (search) {
+                  permissions = permissions.filter(
+                    (p) =>
+                      p.name.toLowerCase().includes(search.toLowerCase()) ||
+                      (p.description &&
+                        p.description
+                          .toLowerCase()
+                          .includes(search.toLowerCase()))
+                  );
+                }
+
+                this.displayPermissions(permissions);
+                if (result.pagination) {
+                  this.displayPagination(result.pagination);
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error loading permissions:", error);
+            this.showError("Failed to load permissions: " + error.message);
+          } finally {
+            if (loading) loading.style.display = "none";
+            if (table) table.style.display = "block";
+          }
+        }
+
+        displayPermissions(permissions) {
+          const tbody = document.getElementById("permissionsTableBody");
+          if (!tbody) return;
+
+          tbody.innerHTML = "";
+
+          if (!permissions || permissions.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                  <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                  <p class="mt-2">No permissions found</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          permissions.forEach((permission) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>
+                <span class="fw-semibold">${permission.name}</span>
+              </td>
+              <td>
+                <span class="badge bg-primary">${permission.resource}</span>
+              </td>
+              <td>
+                <span class="badge bg-info">${permission.action}</span>
+              </td>
+              <td>
+                <small class="text-muted">${
+                  permission.description || "N/A"
+                }</small>
+              </td>
+              <td>
+                <small class="text-muted">
+                  ${new Date(permission.createdAt).toLocaleDateString("vi-VN")}
+                </small>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-outline-warning" 
+                          onclick="permissionManager.editPermission('${
+                            permission.id
+                          }')"
+                          title="Edit Permission">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" 
+                          onclick="permissionManager.confirmDelete('${
+                            permission.id
+                          }', '${permission.name}')"
+                          title="Delete Permission">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        displayPagination(pagination) {
+          const paginationEl = document.getElementById("permissionsPagination");
+          if (!paginationEl) return;
+
+          paginationEl.innerHTML = "";
+          if (pagination.totalPages <= 1) return;
+
+          const prevLi = document.createElement("li");
+          prevLi.className = `page-item ${
+            pagination.currentPage === 1 ? "disabled" : ""
+          }`;
+          prevLi.innerHTML = `
+            <a class="page-link" href="#" onclick="permissionManager.goToPage(${
+              pagination.currentPage - 1
+            }); return false;">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          `;
+          paginationEl.appendChild(prevLi);
+
+          const startPage = Math.max(1, pagination.currentPage - 2);
+          const endPage = Math.min(
+            pagination.totalPages,
+            pagination.currentPage + 2
+          );
+
+          for (let i = startPage; i <= endPage; i++) {
+            const li = document.createElement("li");
+            li.className = `page-item ${
+              i === pagination.currentPage ? "active" : ""
+            }`;
+            li.innerHTML = `<a class="page-link" href="#" onclick="permissionManager.goToPage(${i}); return false;">${i}</a>`;
+            paginationEl.appendChild(li);
+          }
+
+          const nextLi = document.createElement("li");
+          nextLi.className = `page-item ${
+            pagination.currentPage === pagination.totalPages ? "disabled" : ""
+          }`;
+          nextLi.innerHTML = `
+            <a class="page-link" href="#" onclick="permissionManager.goToPage(${
+              pagination.currentPage + 1
+            }); return false;">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          `;
+          paginationEl.appendChild(nextLi);
+        }
+
+        goToPage(page) {
+          this.currentPage = page;
+          this.loadPermissions();
+        }
+
+        async loadStatistics() {
+          try {
+            const result = await API.request("/permissions");
+            if (result.success) {
+              const permissions = result.data;
+              const resources = new Set(permissions.map((p) => p.resource));
+              const actions = new Set(permissions.map((p) => p.action));
+
+              document.getElementById("totalPermissions").textContent =
+                permissions.length;
+              document.getElementById("totalResources").textContent =
+                resources.size;
+              document.getElementById("totalActions").textContent =
+                actions.size;
+            }
+          } catch (error) {
+            console.error("Error loading statistics:", error);
+          }
+        }
+
+        async loadResourcesFilter() {
+          try {
+            const result = await API.request("/permissions");
+            if (result.success) {
+              const resources = [
+                ...new Set(result.data.map((p) => p.resource)),
+              ].sort();
+              const filterSelect = document.getElementById("filterResource");
+
+              resources.forEach((resource) => {
+                const option = document.createElement("option");
+                option.value = resource;
+                option.textContent = resource;
+                filterSelect.appendChild(option);
+              });
+            }
+          } catch (error) {
+            console.error("Error loading resources:", error);
+          }
+        }
+
+        showCreateModal() {
+          const modalHtml = `
+            <div class="modal fade" id="createPermissionModal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Create Permission</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <form id="createPermissionForm">
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label class="form-label">Permission Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createName" placeholder="e.g., user:create" required>
+                        <small class="text-muted">Format: resource:action</small>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Resource <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createResource" placeholder="e.g., user" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Action <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="createAction" placeholder="e.g., create" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="createDescription" rows="3" placeholder="Describe what this permission allows..."></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                      </button>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Create Permission
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+
+          this.removeModal("createPermissionModal");
+          document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("createPermissionModal")
+          );
+          modal.show();
+
+          document
+            .getElementById("createPermissionForm")
+            .addEventListener("submit", (e) => {
+              e.preventDefault();
+              this.createPermission();
+            });
+        }
+
+        async createPermission() {
+          const submitBtn = document.querySelector(
+            "#createPermissionForm button[type='submit']"
+          );
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm"></span> Creating...';
+
+          try {
+            const data = {
+              name: document.getElementById("createName").value,
+              resource: document.getElementById("createResource").value,
+              action: document.getElementById("createAction").value,
+              description:
+                document.getElementById("createDescription").value || null,
+            };
+
+            const result = await API.request("/permissions", {
+              method: "POST",
+              body: JSON.stringify(data),
+            });
+
+            if (result.success) {
+              this.showSuccess("Permission created successfully!");
+              this.removeModal("createPermissionModal");
+              this.loadPermissions();
+              this.loadStatistics();
+              this.loadResourcesFilter();
+            }
+          } catch (error) {
+            this.showError("Failed to create permission: " + error.message);
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML =
+              '<i class="bi bi-check-circle"></i> Create Permission';
+          }
+        }
+
+        async editPermission(permissionId) {
+          try {
+            const result = await API.request(`/permissions/${permissionId}`);
+            if (result.success) {
+              this.showEditModal(result.data);
+            }
+          } catch (error) {
+            this.showError("Failed to load permission: " + error.message);
+          }
+        }
+
+        showEditModal(permission) {
+          const modalHtml = `
+            <div class="modal fade" id="editPermissionModal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Edit Permission</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <form id="editPermissionForm">
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label class="form-label">Permission Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editName" value="${
+                          permission.name
+                        }" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Resource <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editResource" value="${
+                          permission.resource
+                        }" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Action <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editAction" value="${
+                          permission.action
+                        }" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="editDescription" rows="3">${
+                          permission.description || ""
+                        }</textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancel
+                      </button>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Save Changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+
+          this.removeModal("editPermissionModal");
+          document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("editPermissionModal")
+          );
+          modal.show();
+
+          document
+            .getElementById("editPermissionForm")
+            .addEventListener("submit", (e) => {
+              e.preventDefault();
+              this.savePermissionEdits(permission.id);
+            });
+        }
+
+        async savePermissionEdits(permissionId) {
+          const submitBtn = document.querySelector(
+            "#editPermissionForm button[type='submit']"
+          );
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm"></span> Saving...';
+
+          try {
+            const data = {
+              name: document.getElementById("editName").value,
+              resource: document.getElementById("editResource").value,
+              action: document.getElementById("editAction").value,
+              description:
+                document.getElementById("editDescription").value || null,
+            };
+
+            const result = await API.request(`/permissions/${permissionId}`, {
+              method: "PUT",
+              body: JSON.stringify(data),
+            });
+
+            if (result.success) {
+              this.showSuccess("Permission updated successfully!");
+              this.removeModal("editPermissionModal");
+              this.loadPermissions();
+              this.loadStatistics();
+            }
+          } catch (error) {
+            this.showError("Failed to update permission: " + error.message);
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML =
+              '<i class="bi bi-check-circle"></i> Save Changes';
+          }
+        }
+
+        confirmDelete(permissionId, permissionName) {
+          const modalHtml = `
+            <div class="modal fade" id="deletePermissionModal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Delete Permission</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="alert alert-danger">
+                      <i class="bi bi-exclamation-triangle"></i>
+                      <strong>Warning!</strong> This action cannot be undone.
+                    </div>
+                    <p>Are you sure you want to delete this permission?</p>
+                    <div class="card">
+                      <div class="card-body">
+                        <h6 class="card-title">${permissionName}</h6>
+                        <p class="card-text text-muted mb-0">Permission ID: ${permissionId}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                      <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="permissionManager.deletePermission('${permissionId}')">
+                      <i class="bi bi-trash"></i> Yes, Delete Permission
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          this.removeModal("deletePermissionModal");
+          document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+          const modal = new bootstrap.Modal(
+            document.getElementById("deletePermissionModal")
+          );
+          modal.show();
+        }
+
+        async deletePermission(permissionId) {
+          const deleteBtn = document.querySelector(
+            "#deletePermissionModal .btn-danger"
+          );
+          deleteBtn.disabled = true;
+          deleteBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm"></span> Deleting...';
+
+          try {
+            const result = await API.request(`/permissions/${permissionId}`, {
+              method: "DELETE",
+            });
+
+            if (result.success) {
+              this.showSuccess("Permission deleted successfully!");
+              this.removeModal("deletePermissionModal");
+              this.loadPermissions();
+              this.loadStatistics();
+            }
+          } catch (error) {
+            this.showError("Failed to delete permission: " + error.message);
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML =
+              '<i class="bi bi-trash"></i> Yes, Delete Permission';
+          }
+        }
+
+        removeModal(modalId) {
+          const existingModal = document.getElementById(modalId);
+          if (existingModal) {
+            const modalInstance = bootstrap.Modal.getInstance(existingModal);
+            if (modalInstance) {
+              modalInstance.hide();
+            }
+            existingModal.remove();
+
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) {
+              backdrop.remove();
+            }
+            document.body.classList.remove("modal-open");
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+          }
+        }
+
+        showSuccess(message) {
+          this.showToast(message, "success");
+        }
+
+        showError(message) {
+          this.showToast(message, "danger");
+        }
+
+        showToast(message, type = "info") {
+          const toastHtml = `
+            <div class="toast align-items-center text-white bg-${type} border-0" role="alert">
+              <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+              </div>
+            </div>
+          `;
+
+          let toastContainer = document.getElementById("toastContainer");
+          if (!toastContainer) {
+            toastContainer = document.createElement("div");
+            toastContainer.id = "toastContainer";
+            toastContainer.className =
+              "toast-container position-fixed top-0 end-0 p-3";
+            toastContainer.style.zIndex = "9999";
+            document.body.appendChild(toastContainer);
+          }
+
+          toastContainer.insertAdjacentHTML("beforeend", toastHtml);
+
+          const toastElement = toastContainer.lastElementChild;
+          const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+          toast.show();
+
+          toastElement.addEventListener("hidden.bs.toast", () => {
+            toastElement.remove();
+          });
+        }
+      }
+
+      let permissionManager;
+      document.addEventListener("DOMContentLoaded", () => {
+        permissionManager = new PermissionManager();
+        permissionManager.init();
+      });
+
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.removeItem("idToken");
+          window.location.href = "../../login";
+        }
+      }
+    </script>
+  </body>
+</html>
