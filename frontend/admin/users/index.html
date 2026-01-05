@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - Admin Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+
+    <style>
+      body {
+        min-height: 100vh;
+        background-color: #f8f9fa;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: white;
+        overflow-y: auto;
+        z-index: 1000;
+      }
+
+      .sidebar h4 {
+        margin-bottom: 30px;
+        font-weight: bold;
+      }
+
+      .sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 12px 15px;
+        margin-bottom: 5px;
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
+
+      .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .sidebar .nav-link.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .sidebar .nav-link i {
+        margin-right: 10px;
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 30px;
+      }
+
+      .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .card-header {
+        background: white;
+        border-bottom: 2px solid #f0f0f0;
+        padding: 20px;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 50px;
+      }
+
+      .filter-section {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h4><i class="bi bi-gear-fill"></i> Admin Panel</h4>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="../index.html">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a class="nav-link active" href="index.html">
+          <i class="bi bi-people-fill"></i> Users
+        </a>
+        <a class="nav-link" href="#roles">
+          <i class="bi bi-shield-fill"></i> Roles
+        </a>
+        <a class="nav-link" href="#permissions">
+          <i class="bi bi-key-fill"></i> Permissions
+        </a>
+        <a class="nav-link" href="#tours">
+          <i class="bi bi-map-fill"></i> Tours
+        </a>
+        <a class="nav-link" href="#bookings">
+          <i class="bi bi-calendar-check-fill"></i> Bookings
+        </a>
+        <hr style="border-color: rgba(255, 255, 255, 0.3); margin: 20px 0" />
+        <a class="nav-link" href="../../index.html">
+          <i class="bi bi-house-fill"></i> Back to Home
+        </a>
+        <a class="nav-link" href="#" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="bi bi-people-fill"></i> User Management</h2>
+          <button
+            class="btn btn-primary"
+            id="reindexAll"
+            title="Reindex all users to Elasticsearch"
+          >
+            <i class="bi bi-arrow-clockwise"></i> Reindex All
+          </button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-primary">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="stat-value" id="totalUsers">0</div>
+              <div class="stat-label">Total Users</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-success">
+                <i class="bi bi-person-check-fill"></i>
+              </div>
+              <div class="stat-value" id="activeUsers">0</div>
+              <div class="stat-label">Active Users</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card text-center">
+              <div class="stat-icon text-danger">
+                <i class="bi bi-person-x-fill"></i>
+              </div>
+              <div class="stat-value" id="inactiveUsers">0</div>
+              <div class="stat-label">Inactive Users</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-label mb-2">
+                <i class="bi bi-pie-chart-fill"></i> By Role
+              </div>
+              <div id="roleStats"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="filter-section">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">
+                <i class="bi bi-search"></i> Search
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="searchUsers"
+                placeholder="Search by name or email..."
+              />
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">
+                <i class="bi bi-shield-fill"></i> Role
+              </label>
+              <select class="form-select" id="filterRole">
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+                <option value="guide">Guide</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">
+                <i class="bi bi-flag-fill"></i> Status
+              </label>
+              <select class="form-select" id="filterStatus">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">
+                <i class="bi bi-box-arrow-in-right"></i> Provider
+              </label>
+              <select class="form-select" id="filterProvider">
+                <option value="">All Providers</option>
+                <option value="google">Google</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-outline-secondary w-100" id="refreshUsers">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <span><i class="bi bi-table"></i> Users List</span>
+          </div>
+          <div class="card-body">
+            <div id="usersLoading" class="loading">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2">Loading users...</p>
+            </div>
+            <div id="usersTable" class="table-container" style="display: none">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Provider</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+              </table>
+              <nav>
+                <ul
+                  class="pagination justify-content-center"
+                  id="usersPagination"
+                ></ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- API Config -->
+    <script src="../../assets/js/api.js"></script>
+
+    <!-- Users JS -->
+    <script src="../../assets/js/user.js"></script>
+
+    <script>
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.removeItem("idToken");
+          window.location.href = "../../login";
+        }
+      }
+    </script>
+  </body>
+</html>
