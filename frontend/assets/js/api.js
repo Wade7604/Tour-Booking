@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://tour-booking-1-wbjc.onrender.com/api";
 
 class API {
   // Helper method to make requests
