@@ -14,7 +14,7 @@ class API {
     };
 
     // Add token if exists
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("idToken");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tour Booking - Home</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body text-center">
+              <h1 class="mb-4">Tour Booking</h1>
+
+              <div
+                id="userInfo"
+                class="alert alert-info mb-3"
+                style="display: none"
+              >
+                <strong>Xin chào!</strong> <span id="userName"></span>
+              </div>
+
+              <div class="d-grid gap-3">
+                <button
+                  id="adminBtn"
+                  class="btn btn-primary btn-lg"
+                  onclick="goToAdmin()"
+                  style="display: none"
+                >
+                  <i class="bi bi-person-gear"></i> Admin
+                </button>
+
+                <button
+                  id="signInBtn"
+                  class="btn btn-success btn-lg"
+                  onclick="goToSignIn()"
+                >
+                  <i class="bi bi-box-arrow-in-right"></i> Sign In
+                </button>
+
+                <button
+                  id="signOutBtn"
+                  class="btn btn-danger btn-lg"
+                  onclick="signOut()"
+                  style="display: none"
+                >
+                  <i class="bi bi-box-arrow-right"></i> Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Config -->
+    <script src="assets/js/api.js"></script>
+
+    <script>
+      // Check auth và role khi load trang
+      async function checkUserRole() {
+        const token = localStorage.getItem("idToken");
+
+        if (!token) {
+          // Chưa đăng nhập - hiện nút Sign In
+          document.getElementById("signInBtn").style.display = "block";
+          document.getElementById("signOutBtn").style.display = "none";
+          document.getElementById("adminBtn").style.display = "none";
+          document.getElementById("userInfo").style.display = "none";
+          return;
+        }
+
+        try {
+          // Gọi API lấy thông tin user hiện tại
+          const result = await API.getCurrentUser();
+          const user = result.data;
+
+          // Hiện thông tin user
+          document.getElementById("userName").textContent = user.fullName;
+          document.getElementById("userInfo").style.display = "block";
+
+          // Đã đăng nhập - ẩn Sign In, hiện Sign Out
+          document.getElementById("signInBtn").style.display = "none";
+          document.getElementById("signOutBtn").style.display = "block";
+
+          // Kiểm tra role - chỉ admin mới thấy nút Admin
+          if (user.role === "admin") {
+            document.getElementById("adminBtn").style.display = "block";
+          } else {
+            document.getElementById("adminBtn").style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error checking user role:", error);
+          // Token không hợp lệ hoặc có lỗi - xóa token và hiện nút Sign In
+          localStorage.removeItem("idToken");
+          document.getElementById("signInBtn").style.display = "block";
+          document.getElementById("signOutBtn").style.display = "none";
+          document.getElementById("adminBtn").style.display = "none";
+          document.getElementById("userInfo").style.display = "none";
+        }
+      }
+
+      function goToAdmin() {
+        window.location.href = "admin";
+      }
+
+      function goToSignIn() {
+        window.location.href = "login";
+      }
+
+      function signOut() {
+        localStorage.removeItem("idToken");
+        alert("Đã đăng xuất thành công!");
+        window.location.reload();
+      }
+
+      // Load khi trang sẵn sàng
+      document.addEventListener("DOMContentLoaded", checkUserRole);
+    </script>
+  </body>
+</html>

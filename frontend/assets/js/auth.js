@@ -55,9 +55,6 @@ function setButtonLoading(button, loading) {
 }
 
 // ===== LOGIN PAGE =====
-const loginForm = document.getElementById("loginForm");
-const googleLoginBtn = document.getElementById("googleLoginBtn");
-
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -72,16 +69,13 @@ if (loginForm) {
       const response = await API.login(email, password);
 
       if (response.success) {
-        // Chỉ lưu token
-        localStorage.setItem(
-          "authToken",
-          response.data.token || response.token
-        );
+        // ✅ Sửa: Lưu idToken từ response.data.idToken
+        localStorage.setItem("idToken", response.data.idToken);
 
         showAlert("Đăng nhập thành công! Đang chuyển hướng...", "success");
 
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "../index.html";
         }, 1500);
       }
     } catch (error) {
@@ -112,16 +106,13 @@ if (googleLoginBtn) {
       const response = await API.loginWithGoogle(idToken);
 
       if (response.success) {
-        // Chỉ lưu token từ backend
-        localStorage.setItem(
-          "authToken",
-          response.data.token || response.token
-        );
+        // ✅ Sửa: Lưu idToken từ response.data.idToken
+        localStorage.setItem("idToken", response.data.idToken);
 
         showAlert("Đăng nhập Google thành công!", "success");
 
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "../index.html";
         }, 1500);
       }
     } catch (error) {
@@ -299,7 +290,7 @@ if (toggleConfirmPassword) {
 
 // ===== CHECK AUTH STATUS =====
 function checkAuthStatus() {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("idToken");
 
   // If on login/register page and already logged in, redirect to dashboard
   const currentPage = window.location.pathname;
@@ -333,7 +324,7 @@ document.addEventListener("DOMContentLoaded", checkAuthStatus);
 // ===== LOGOUT FUNCTION =====
 function logout() {
   // Clear token from localStorage
-  localStorage.removeItem("authToken");
+  localStorage.removeItem("idToken");
 
   // Sign out from Firebase
   auth
