@@ -15,6 +15,7 @@ const runSeeds = async () => {
     const seedPermissions = require("./permission.seed");
     const seedRoles = require("./role.seed");
     const seedDestinations = require("./destination.seed");
+    const seedTours = require("./tours.seed");
 
     // Seed permissions first
     await seedPermissions();
@@ -26,6 +27,10 @@ const runSeeds = async () => {
 
     // Seed destinations
     await seedDestinations();
+    console.log("");
+
+    // Seed tours
+    await seedTours();
     console.log("");
 
     console.log("✅ All seeds completed successfully!");

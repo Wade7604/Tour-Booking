@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tour Booking - Home</title>
+    <title>Tour Booking - Khám Phá Việt Nam</title>
 
     <!-- Bootstrap CSS -->
     <link
@@ -15,180 +15,1246 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
     />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Montserrat", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: #ffffff;
+        overflow-x: hidden;
+      }
+
+      /* Navbar */
+      .navbar {
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        padding: 1.2rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar-brand {
+        font-weight: 800;
+        font-size: 1.6rem;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .navbar-brand i {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.8rem;
+      }
+
+      .nav-link {
+        font-weight: 600;
+        color: #64748b !important;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1.2rem !important;
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .nav-link:hover {
+        color: #0284c7 !important;
+        background: rgba(2, 132, 199, 0.08);
+      }
+
+      .btn-gradient {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 0.7rem 2rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        font-size: 0.95rem;
+      }
+
+      .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+        background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      }
+
+      /* Hero Section - With Carousel */
+      .hero-section {
+        position: relative;
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .hero-carousel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+
+      .hero-carousel .carousel-item {
+        height: 100%;
+        min-height: 600px;
+      }
+
+      .hero-carousel .carousel-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .hero-carousel::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.3) 0%,
+          rgba(0, 0, 0, 0.2) 100%
+        );
+        z-index: 1;
+      }
+
+      .hero-section .container {
+        position: relative;
+        z-index: 2;
+        padding: 8rem 0 4rem;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-title {
+        font-size: 4.5rem;
+        font-weight: 900;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+        animation: fadeInUp 0.8s ease;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-subtitle {
+        font-size: 1.4rem;
+        font-weight: 400;
+        color: #f1f5f9;
+        margin-bottom: 2.5rem;
+        animation: fadeInUp 0.8s ease 0.2s both;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        animation: fadeInUp 0.8s ease 0.4s both;
+      }
+
+      .btn-hero-primary {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: white;
+        font-weight: 700;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        border: none;
+        font-size: 1.1rem;
+        box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
+        transition: all 0.3s ease;
+      }
+
+      .btn-hero-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(2, 132, 199, 0.45);
+      }
+
+      .btn-hero-secondary {
+        background: white;
+        color: #0284c7;
+        font-weight: 700;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        border: 2px solid #0284c7;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-hero-secondary:hover {
+        background: #0284c7;
+        color: white;
+        transform: translateY(-3px);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Carousel controls */
+      .hero-carousel .carousel-control-prev,
+      .hero-carousel .carousel-control-next {
+        z-index: 3;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+      }
+
+      .hero-carousel .carousel-control-prev:hover,
+      .hero-carousel .carousel-control-next:hover {
+        opacity: 1;
+      }
+
+      .hero-carousel .carousel-indicators {
+        z-index: 3;
+        margin-bottom: 2rem;
+      }
+
+      /* Section Styles */
+      .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #0284c7;
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.5rem;
+        border-bottom: 4px solid #0284c7;
+      }
+
+      .section-subtitle {
+        color: #64748b;
+        font-size: 1.2rem;
+        margin-bottom: 4rem;
+        font-weight: 400;
+      }
+
+      /* Card Styles - Professional Booking Design */
+      .tour-card,
+      .destination-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #f1f5f9;
+      }
+
+      .tour-card:hover,
+      .destination-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        border-color: #e2e8f0;
+      }
+
+      .card-image {
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .tour-card:hover .card-image,
+      .destination-card:hover .card-image {
+        transform: scale(1.05);
+      }
+
+      .card-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        background: #f8fafc;
+      }
+
+      .card-badge {
+        position: absolute;
+        top: 0.8rem;
+        right: 0.8rem;
+        background: white;
+        color: #0284c7;
+        padding: 0.4rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 2;
+      }
+
+      .card-body {
+        padding: 1.25rem;
+        background: white;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-info {
+        display: flex;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+        flex-wrap: wrap;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background: #f8fafc;
+        padding: 0.35rem 0.7rem;
+        border-radius: 6px;
+      }
+
+      .info-item i {
+        color: #0284c7;
+        font-size: 0.9rem;
+      }
+
+      .card-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0.6rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .card-location {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .card-location i {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+
+      .card-date {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: #f0f9ff;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        border-left: 3px solid #0284c7;
+      }
+
+      .card-date i {
+        color: #0284c7;
+        font-size: 0.9rem;
+      }
+
+      .card-price-section {
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-price-label {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 500;
+        margin-bottom: 0.2rem;
+      }
+
+      .card-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0284c7;
+      }
+
+      .card-price-per {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+
+      .card-book-btn {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .card-book-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+      }
+
+      /* Destination Grid Cards - Compact Masonry Layout */
+      .destination-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: 180px;
+        gap: 1rem;
+      }
+
+      .destination-grid-card {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Perfect layout pattern for 8 items - no gaps */
+      .destination-grid-card:nth-child(1) {
+        grid-column: 1 / 3;
+        grid-row: 1 / 3;
+      }
+
+      .destination-grid-card:nth-child(2) {
+        grid-column: 3 / 5;
+        grid-row: 1 / 2;
+      }
+
+      .destination-grid-card:nth-child(3) {
+        grid-column: 3 / 5;
+        grid-row: 2 / 3;
+      }
+
+      .destination-grid-card:nth-child(4) {
+        grid-column: 1 / 2;
+        grid-row: 3 / 5;
+      }
+
+      .destination-grid-card:nth-child(5) {
+        grid-column: 2 / 4;
+        grid-row: 3 / 4;
+      }
+
+      .destination-grid-card:nth-child(6) {
+        grid-column: 4 / 5;
+        grid-row: 3 / 5;
+      }
+
+      .destination-grid-card:nth-child(7) {
+        grid-column: 2 / 3;
+        grid-row: 4 / 5;
+      }
+
+      .destination-grid-card:nth-child(8) {
+        grid-column: 3 / 4;
+        grid-row: 4 / 5;
+      }
+
+      .destination-grid-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .destination-grid-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .destination-grid-card:hover img {
+        transform: scale(1.1);
+      }
+
+      .destination-grid-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.6) 0%,
+          rgba(0, 0, 0, 0.2) 50%,
+          transparent 100%
+        );
+        z-index: 1;
+      }
+
+      .destination-name {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        right: 1.5rem;
+        z-index: 2;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+      }
+
+      .destination-see-tours {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        background: white;
+        color: #0284c7;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+      }
+
+      .destination-grid-card:hover .destination-see-tours {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1.05);
+      }
+
+      .destination-grid-card:hover .destination-name {
+        transform: translateY(10px);
+        opacity: 0.8;
+      }
+
+      .destination-grid-card:hover::after {
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.85) 0%,
+          rgba(0, 0, 0, 0.6) 50%,
+          rgba(0, 0, 0, 0.4) 100%
+        );
+      }
+
+      @media (max-width: 992px) {
+        .destination-grid {
+          grid-template-columns: repeat(2, 1fr);
+          grid-auto-rows: 220px;
+        }
+
+        .destination-grid-card:nth-child(1) {
+          grid-column: span 2;
+          grid-row: span 2;
+        }
+
+        .destination-grid-card:nth-child(2),
+        .destination-grid-card:nth-child(3) {
+          grid-column: span 1;
+          grid-row: span 1;
+        }
+
+        .destination-grid-card:nth-child(4) {
+          grid-column: span 1;
+          grid-row: span 2;
+        }
+
+        .destination-grid-card:nth-child(5),
+        .destination-grid-card:nth-child(6) {
+          grid-column: span 1;
+          grid-row: span 1;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .destination-grid {
+          grid-template-columns: 1fr;
+          grid-auto-rows: 250px;
+        }
+
+        .destination-grid-card:nth-child(1),
+        .destination-grid-card:nth-child(2),
+        .destination-grid-card:nth-child(3),
+        .destination-grid-card:nth-child(4),
+        .destination-grid-card:nth-child(5),
+        .destination-grid-card:nth-child(6) {
+          grid-column: span 1;
+          grid-row: span 1;
+        }
+      }
+
+      /* Horizontal Scrolling Container */
+      .tours-scroll-container,
+      .destinations-scroll-container {
+        position: relative;
+        padding: 0;
+      }
+
+      .scroll-wrapper {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding-bottom: 1rem;
+      }
+
+      .scroll-wrapper::-webkit-scrollbar {
+        display: none;
+      }
+
+      .scroll-content {
+        display: flex;
+        gap: 1.5rem;
+        padding: 0.5rem 0;
+      }
+
+      .scroll-content > div {
+        flex: 0 0 380px;
+        max-width: 380px;
+      }
+
+      /* Scroll Navigation Arrows - Top Right */
+      .scroll-nav-container {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .scroll-nav {
+        position: static;
+        transform: none;
+        z-index: 10;
+        background: white;
+        border: 2px solid #e2e8f0;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #0284c7;
+        font-size: 1.3rem;
+      }
+
+      .scroll-nav:hover {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: white;
+        border-color: #0284c7;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+      }
+
+      .scroll-nav:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .scroll-nav:disabled:hover {
+        background: white;
+        color: #0284c7;
+        border-color: #e2e8f0;
+        transform: none;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+      }
+
+      .section-header-text {
+        flex: 1;
+      }
+
+      /* Stats Section */
+      .stats-section {
+        background: white;
+        padding: 3rem 0;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+      }
+
+      .stat-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        font-size: 1rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Loading */
+      .loading-spinner {
+        text-align: center;
+        padding: 5rem 0;
+      }
+
+      .spinner-border {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-width: 0.4rem;
+        border-color: #0284c7;
+        border-right-color: transparent;
+      }
+
+      /* Footer */
+      footer {
+        background: #0f172a;
+        color: white;
+        padding: 3rem 0;
+        margin-top: 5rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 3rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.1rem;
+        }
+
+        .section-title {
+          font-size: 2.2rem;
+        }
+
+        .stat-number {
+          font-size: 2.8rem;
+        }
+
+        .hero-buttons {
+          flex-direction: column;
+        }
+
+        .btn-hero-primary,
+        .btn-hero-secondary {
+          width: 100%;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="container mt-5">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-body text-center">
-              <h1 class="mb-4">Tour Booking</h1>
-
-              <div
-                id="userInfo"
-                class="alert alert-info mb-3"
-                style="display: none"
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="bi bi-compass-fill"></i>
+          <span>TourBooking</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <a class="nav-link" href="#tours">Tours</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#destinations">Destinations</a>
+            </li>
+            <li class="nav-item" id="adminNavItem" style="display: none">
+              <a class="nav-link" href="/admin">
+                <i class="bi bi-person-gear"></i> Admin
+              </a>
+            </li>
+            <li class="nav-item ms-3">
+              <button
+                id="authBtn"
+                class="btn btn-gradient"
+                onclick="handleAuth()"
               >
-                <strong>Xin chào!</strong> <span id="userName"></span>
-                <br />
-                <small class="text-muted">
-                  Role: <span id="userRole"></span>
-                </small>
-              </div>
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-              <div class="d-grid gap-3">
-                <!-- Nút Admin - chỉ hiện khi có permission -->
+    <!-- Hero Section with Carousel -->
+    <section class="hero-section">
+      <!-- Background Carousel -->
+      <div
+        id="heroCarousel"
+        class="carousel slide hero-carousel"
+        data-bs-ride="carousel"
+      >
+        <div class="carousel-indicators">
+          <button
+            type="button"
+            data-bs-target="#heroCarousel"
+            data-bs-slide-to="0"
+            class="active"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#heroCarousel"
+            data-bs-slide-to="1"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#heroCarousel"
+            data-bs-slide-to="2"
+          ></button>
+          <button
+            type="button"
+            data-bs-target="#heroCarousel"
+            data-bs-slide-to="3"
+          ></button>
+        </div>
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img
+              src="https://images.unsplash.com/photo-1528127269322-539801943592?w=1920&q=80"
+              alt="Ha Long Bay"
+            />
+          </div>
+          <div class="carousel-item">
+            <img
+              src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1920&q=80"
+              alt="Hoi An"
+            />
+          </div>
+          <div class="carousel-item">
+            <img
+              src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1920&q=80"
+              alt="Sapa"
+            />
+          </div>
+          <div class="carousel-item">
+            <img
+              src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=1920&q=80"
+              alt="Ho Chi Minh City"
+            />
+          </div>
+        </div>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#heroCarousel"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#heroCarousel"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <div class="hero-content">
+              <h1 class="hero-title">Travel across Vietnam</h1>
+              <p class="hero-subtitle">
+                Discover the beauty of Vietnam and experience unforgettable
+                journeys your way
+              </p>
+              <div class="hero-buttons justify-content-center">
                 <button
-                  id="adminBtn"
-                  class="btn btn-primary btn-lg"
-                  onclick="goToAdmin()"
-                  style="display: none"
+                  class="btn btn-hero-primary"
+                  onclick="document.getElementById('tours').scrollIntoView({behavior: 'smooth'})"
                 >
-                  <i class="bi bi-person-gear"></i> Admin Panel
+                  <i class="bi bi-search"></i> Explore Tours
                 </button>
-
-                <!-- Nút Sign In -->
                 <button
-                  id="signInBtn"
-                  class="btn btn-success btn-lg"
-                  onclick="goToSignIn()"
+                  class="btn btn-hero-secondary"
+                  onclick="document.getElementById('destinations').scrollIntoView({behavior: 'smooth'})"
                 >
-                  <i class="bi bi-box-arrow-in-right"></i> Sign In
+                  <i class="bi bi-geo-alt"></i> Destinations
                 </button>
-
-                <!-- Nút Sign Out -->
-                <button
-                  id="signOutBtn"
-                  class="btn btn-danger btn-lg"
-                  onclick="signOut()"
-                  style="display: none"
-                >
-                  <i class="bi bi-box-arrow-right"></i> Sign Out
-                </button>
-              </div>
-
-              <!-- Thông tin permissions (chỉ dev mode) -->
-              <div id="permissionsDebug" class="mt-3" style="display: none">
-                <div class="alert alert-secondary">
-                  <strong>Your Permissions:</strong>
-                  <ul id="permissionsList" class="mb-0 text-start"></ul>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- API Config -->
+    <!-- Featured Tours Section -->
+    <section id="tours" class="py-5 mt-5">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-header-text">
+            <h2 class="section-title">Featured Tours</h2>
+            <p class="section-subtitle">
+              Discover our most popular tour experiences
+            </p>
+          </div>
+          <div class="scroll-nav-container">
+            <button class="scroll-nav" onclick="scrollTours('prev')">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="scroll-nav" onclick="scrollTours('next')">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="toursLoading" class="loading-spinner">
+          <div class="spinner-border" role="status"></div>
+          <p class="mt-3 text-muted">Loading tours...</p>
+        </div>
+
+        <div
+          id="toursScrollContainer"
+          class="tours-scroll-container"
+          style="display: none"
+        >
+          <div class="scroll-wrapper" id="toursScrollWrapper">
+            <div class="scroll-content" id="toursContainer"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Popular Destinations Section -->
+    <section id="destinations" class="py-5 mt-5" style="background: #f0f9ff">
+      <div class="container">
+        <div class="section-header text-center">
+          <div class="section-header-text">
+            <h2 class="section-title">Popular Destinations</h2>
+            <p class="section-subtitle">
+              Explore the most beautiful places in Vietnam
+            </p>
+          </div>
+        </div>
+
+        <div id="destinationsLoading" class="loading-spinner">
+          <div class="spinner-border" role="status"></div>
+          <p class="mt-3 text-muted">Loading destinations...</p>
+        </div>
+
+        <div
+          id="destinationsContainer"
+          class="destination-grid"
+          style="display: none"
+        ></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container text-center">
+        <p class="mb-0" style="font-size: 1.1rem">
+          &copy; 2025 TourBooking. Made with Trường Thịnh & Thiện Nhân in
+          Vietnam
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/api.js"></script>
     <script src="assets/js/auth-middleware.js"></script>
 
     <script>
-      // Debug mode - set true để xem permissions
-      const DEBUG_MODE = false;
-
-      // Check auth và permissions khi load trang
-      async function checkUserRole() {
-        const token = localStorage.getItem("idToken");
-
-        if (!token) {
-          // Chưa đăng nhập - hiện nút Sign In
-          showGuestUI();
-          return;
-        }
-
+      // Check authentication
+      async function checkAuth() {
         try {
-          // Gọi API lấy thông tin user hiện tại qua AuthMiddleware
           const user = await AuthMiddleware.getCurrentUser();
+          const authBtn = document.getElementById("authBtn");
 
-          if (!user) {
-            showGuestUI();
-            return;
-          }
+          if (user) {
+            authBtn.innerHTML =
+              '<i class="bi bi-box-arrow-right"></i> Sign Out';
+            authBtn.onclick = () => {
+              if (confirm("Bạn có chắc muốn đăng xuất?")) {
+                AuthMiddleware.logout();
+              }
+            };
 
-          // Hiện thông tin user
-          document.getElementById("userName").textContent =
-            user.fullName || user.email;
-          document.getElementById("userRole").textContent =
-            user.roleDetails?.name || user.role || "N/A";
-          document.getElementById("userInfo").style.display = "block";
+            // Check admin access
+            const hasAdminAccess = await AuthMiddleware.hasAnyPermission([
+              "user:view",
+              "role:view",
+              "tour:create",
+              "destination:create",
+            ]);
 
-          // Đã đăng nhập - ẩn Sign In, hiện Sign Out
-          document.getElementById("signInBtn").style.display = "none";
-          document.getElementById("signOutBtn").style.display = "block";
-
-          // ✅ CHECK PERMISSION thay vì role
-          // Kiểm tra xem user có BẤT KỲ permission nào liên quan đến admin không
-          const hasAdminAccess = await AuthMiddleware.hasAnyPermission([
-            "user:view", // Xem users
-            "role:view", // Xem roles
-            "permission:view", // Xem permissions
-            "tour:create",
-            "destination:create",
-            "booking:view", // Quản lý bookings
-          ]);
-
-          if (hasAdminAccess) {
-            document.getElementById("adminBtn").style.display = "block";
-          } else {
-            document.getElementById("adminBtn").style.display = "none";
-          }
-
-          // Debug mode - hiện danh sách permissions
-          if (DEBUG_MODE && user.permissions) {
-            showPermissionsDebug(user.permissions);
+            if (hasAdminAccess) {
+              document.getElementById("adminNavItem").style.display = "block";
+            }
           }
         } catch (error) {
-          console.error("Error checking user role:", error);
-          // Token không hợp lệ hoặc có lỗi - xóa token và hiện nút Sign In
-          localStorage.removeItem("idToken");
-          AuthMiddleware.currentUser = null;
-          showGuestUI();
+          console.error("Auth check error:", error);
         }
       }
 
-      // Hiển thị UI cho guest (chưa đăng nhập)
-      function showGuestUI() {
-        document.getElementById("signInBtn").style.display = "block";
-        document.getElementById("signOutBtn").style.display = "none";
-        document.getElementById("adminBtn").style.display = "none";
-        document.getElementById("userInfo").style.display = "none";
-        document.getElementById("permissionsDebug").style.display = "none";
+      function handleAuth() {
+        window.location.href = "/login";
       }
 
-      // Debug: Hiển thị permissions của user
-      function showPermissionsDebug(permissions) {
-        const debugDiv = document.getElementById("permissionsDebug");
-        const permList = document.getElementById("permissionsList");
+      // Load Tours
+      async function loadTours() {
+        const loading = document.getElementById("toursLoading");
+        const scrollContainer = document.getElementById("toursScrollContainer");
+        const container = document.getElementById("toursContainer");
 
-        if (permissions && permissions.length > 0) {
-          permList.innerHTML = permissions
-            .map(
-              (p) =>
-                `<li><code>${p.name}</code> - ${p.description || "N/A"}</li>`
-            )
-            .join("");
-          debugDiv.style.display = "block";
+        try {
+          const response = await API.get("/tours?limit=12&status=active");
+          const data = response.data || response;
+          const tours = data.tours || [];
+
+          if (tours.length > 0) {
+            container.innerHTML = tours
+              .map((tour) => {
+                // Get next available date
+                let nextDate = null;
+                if (tour.availableDates && tour.availableDates.length > 0) {
+                  const now = new Date();
+                  const futureDates = tour.availableDates
+                    .filter((d) => new Date(d.startDate) > now)
+                    .sort(
+                      (a, b) => new Date(a.startDate) - new Date(b.startDate)
+                    );
+                  nextDate = futureDates[0];
+                }
+
+                return `
+              <div>
+                <div class="tour-card">
+                  <div class="card-image-wrapper">
+                    <img
+                      src="${
+                        tour.coverImage ||
+                        tour.images?.[0] ||
+                        "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=80"
+                      }"
+                      alt="${tour.name}"
+                      class="card-image"
+                    />
+                    ${
+                      tour.featured
+                        ? '<span class="card-badge"><i class="bi bi-star-fill"></i> Featured</span>'
+                        : ""
+                    }
+                  </div>
+                  <div class="card-body">
+                    <div class="card-info">
+                      <span class="info-item">
+                        <i class="bi bi-clock"></i> ${
+                          tour.duration?.days || 0
+                        }D${tour.duration?.nights || 0}N
+                      </span>
+                      <span class="info-item">
+                        <i class="bi bi-people"></i> ${tour.maxGroupSize || 0}
+                      </span>
+                    </div>
+                    <h5 class="card-title">${tour.name}</h5>
+                    <div class="card-location">
+                      <i class="bi bi-geo-alt"></i>
+                      <span>${
+                        tour.destination?.name ||
+                        tour.destinations?.[0]?.name ||
+                        "Vietnam"
+                      }</span>
+                    </div>
+                    ${
+                      nextDate
+                        ? `
+                    <div class="card-date">
+                      <i class="bi bi-calendar-check"></i>
+                      <span>Next: ${new Date(
+                        nextDate.startDate
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}</span>
+                    </div>
+                    `
+                        : ""
+                    }
+                    <div class="card-price-section">
+                      <div>
+                        <div class="card-price-label">From</div>
+                        <div class="card-price">${formatPrice(
+                          tour.price?.adult || 0
+                        )}</div>
+                        <div class="card-price-per">per person</div>
+                      </div>
+                      <button class="card-book-btn" onclick="viewTourDetail('${
+                        tour.id
+                      }')">
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+              })
+              .join("");
+          } else {
+            container.innerHTML =
+              '<div class="text-center"><p class="text-muted">No tours available</p></div>';
+          }
+
+          loading.style.display = "none";
+          scrollContainer.style.display = "block";
+        } catch (error) {
+          console.error("Error loading tours:", error);
+          loading.innerHTML = '<p class="text-danger">Unable to load tours</p>';
         }
       }
 
-      function goToAdmin() {
-        window.location.href = "admin";
-      }
+      // Scroll Tours
+      function scrollTours(direction) {
+        const wrapper = document.getElementById("toursScrollWrapper");
+        const scrollAmount = 400;
 
-      function goToSignIn() {
-        window.location.href = "login";
+        if (direction === "prev") {
+          wrapper.scrollLeft -= scrollAmount;
+        } else {
+          wrapper.scrollLeft += scrollAmount;
+        }
       }
+      async function loadDestinations() {
+        const loading = document.getElementById("destinationsLoading");
+        const container = document.getElementById("destinationsContainer");
 
-      function signOut() {
-        if (confirm("Bạn có chắc muốn đăng xuất?")) {
-          AuthMiddleware.logout();
+        try {
+          const response = await API.get("/destinations?limit=8&status=active");
+          console.log("Destinations response:", response);
+
+          // Backend returns { success, message, data: [...], pagination }
+          // data is the array of destinations
+          const destinations = response.data || [];
+
+          if (destinations.length > 0) {
+            container.innerHTML = destinations
+              .map(
+                (dest) => `
+              <div class="destination-grid-card" onclick="viewDestinationDetail('${
+                dest.id
+              }')">
+                <img
+                  src="${
+                    dest.images?.[0] ||
+                    "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80"
+                  }"
+                  alt="${dest.name}"
+                />
+                <div class="destination-name">${dest.name}</div>
+                <div class="destination-see-tours">
+                  <i class="bi bi-arrow-right-circle"></i> See Tours
+                </div>
+              </div>
+            `
+              )
+              .join("");
+          } else {
+            container.innerHTML =
+              '<div class="text-center"><p class="text-muted">No destinations available</p></div>';
+          }
+
+          loading.style.display = "none";
+          container.style.display = "grid";
+        } catch (error) {
+          console.error("Error loading destinations:", error);
+          loading.innerHTML =
+            '<p class="text-danger">Unable to load destinations</p>';
         }
       }
 
-      // Load khi trang sẵn sàng
-      document.addEventListener("DOMContentLoaded", checkUserRole);
+      // View details (placeholder)
+      function viewTourDetail(id) {
+        alert(`Tour detail: ${id}\n(Feature under development)`);
+      }
+
+      function viewDestinationDetail(id) {
+        alert(`Destination detail: ${id}\n(Feature under development)`);
+      }
+
+      // Format price
+      function formatPrice(price) {
+        return new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(price);
+      }
+
+      // View details (placeholder)
+      function viewTourDetail(id) {
+        alert(`Tour detail: ${id}\n(Chức năng đang phát triển)`);
+      }
+
+      function viewDestinationDetail(id) {
+        alert(`Destination detail: ${id}\n(Chức năng đang phát triển)`);
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        checkAuth();
+        loadTours();
+        loadDestinations();
+      });
     </script>
   </body>
 </html>

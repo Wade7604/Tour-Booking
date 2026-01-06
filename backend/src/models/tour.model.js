@@ -78,20 +78,7 @@ class TourModel {
     }
   }
 
-  // Find tour by ID
-  async findById(tourId) {
-    try {
-      const doc = await this.collection.doc(tourId).get();
 
-      if (!doc.exists) {
-        return null;
-      }
-
-      return doc.data();
-    } catch (error) {
-      throw error;
-    }
-  }
 
   // Find by ID with population
   async findById(tourId) {

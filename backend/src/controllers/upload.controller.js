@@ -205,57 +205,63 @@ class UploadController {
   }
 
   /**
-   * Upload tour images
-   */
-  async uploadTourImages(req, res) {
-    try {
-      const { tourId } = req.params;
+ * Upload tour images
+ */
+async uploadTourImages(req, res) {
+  try {
+    const { tourId } = req.params;
 
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: "No files uploaded",
-        });
-      }
-
-      // Validate image files
-      CloudinaryService.validateImageFiles(req.files);
-
-      // Upload images to Cloudinary (using destination folder for now)
-      const results = await CloudinaryService.uploadDestinationImages(
-        req.files,
-        `tours/${tourId}`
-      );
-
-      // Extract image URLs
-      const imageUrls = results.map((result) => result.url);
-
-      // Save image URLs to tour database
-      const TourModel = require("../models/tour.model");
-      const tour = await TourModel.addImages(tourId, imageUrls);
-
-      return res.status(200).json({
-        success: true,
-        message: "Images uploaded successfully",
-        data: {
-          images: results.map((result, index) => ({
-            url: result.url,
-            publicId: result.publicId,
-            thumbnail: CloudinaryService.getThumbnail(result.publicId),
-            order: index,
-          })),
-          tour: tour,
-        },
-      });
-    } catch (error) {
-      console.error("Upload tour images error:", error);
-      return res.status(500).json({
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
         success: false,
-        message: error.message || "Failed to upload images",
+        message: "No files uploaded",
       });
     }
-  }
 
+    // Validate image files
+    CloudinaryService.validateImageFiles(req.files);
+
+    // Upload images to Cloudinary
+    const results = await CloudinaryService.uploadDestinationImages(
+      req.files,
+      `tours/${tourId}`
+    );
+
+    // Extract image URLs
+    const imageUrls = results.map((result) => result.url);
+
+    console.log('Uploaded image URLs:', imageUrls); // Debug log
+
+    // Save image URLs to tour database
+    const TourModel = require("../models/tour.model");
+    const updatedTour = await TourModel.addImages(tourId, imageUrls);
+
+    console.log('Updated tour images:', updatedTour.images); // Debug log
+
+    return res.status(200).json({
+      success: true,
+      message: "Images uploaded successfully",
+      data: {
+        // Trả về mảng images đầy đủ của tour (bao gồm cả ảnh cũ + ảnh mới)
+        allImages: updatedTour.images || [],
+        // Trả về info của ảnh mới vừa upload
+        newImages: results.map((result, index) => ({
+          url: result.url,
+          publicId: result.publicId,
+          thumbnail: CloudinaryService.getThumbnail(result.publicId),
+          order: index,
+        })),
+        tour: updatedTour,
+      },
+    });
+  } catch (error) {
+    console.error("Upload tour images error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to upload images",
+    });
+  }
+}
   /**
    * Delete single tour image
    */

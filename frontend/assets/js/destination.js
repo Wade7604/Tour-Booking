@@ -198,7 +198,529 @@ class DestinationAPI {
   }
 }
 
+// Destination Admin Page Controller
+class DestinationAdminController {
+  constructor() {
+    this.currentPage = 1;
+    this.currentLimit = 20;
+    this.currentFilters = {};
+    this.searchTimeout = null;
+    this.destinationModal = null;
+    this.imageModal = null;
+  }
+
+  // Initialize the page
+  async init() {
+    const hasAccess = await AuthMiddleware.requirePermission("destination:view");
+    if (!hasAccess) return;
+
+    await AuthMiddleware.setupPermissionUI();
+
+    this.destinationModal = new bootstrap.Modal(
+      document.getElementById("destinationModal")
+    );
+    this.imageModal = new bootstrap.Modal(
+      document.getElementById("imageModal")
+    );
+
+    this.setupEventListeners();
+    await this.loadStatistics();
+    await this.loadDestinations();
+    await this.populateFilters();
+  }
+
+  // Setup event listeners
+  setupEventListeners() {
+    // Search with debounce
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(() => {
+        this.currentPage = 1;
+        this.loadDestinations();
+      }, 500);
+    });
+
+    // Filters
+    document.getElementById("statusFilter").addEventListener("change", () => {
+      this.currentPage = 1;
+      this.loadDestinations();
+    });
+
+    document.getElementById("countryFilter").addEventListener("change", () => {
+      this.currentPage = 1;
+      this.loadDestinations();
+    });
+
+    document.getElementById("cityFilter").addEventListener("change", () => {
+      this.currentPage = 1;
+      this.loadDestinations();
+    });
+
+    // Auto-generate slug from name
+    document.getElementById("destinationName").addEventListener("input", (e) => {
+      const slug = e.target.value
+        .toLowerCase()
+        .normalize('NFD') // Decompose combined graphemes
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+        .replace(/[đĐ]/g, 'd') // Handle Vietnamese 'd'
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .trim();
+      document.getElementById("destinationSlug").value = slug;
+    });
+  }
+
+  // Load statistics
+  async loadStatistics() {
+    try {
+      const result = await DestinationAPI.getDestinationStatistics();
+      if (result.success) {
+        const stats = result.data;
+        document.getElementById("totalDestinations").textContent = stats.total || 0;
+        document.getElementById("activeDestinations").textContent = stats.byStatus?.active || 0;
+        document.getElementById("inactiveDestinations").textContent = stats.byStatus?.inactive || 0;
+        document.getElementById("totalCountries").textContent = Object.keys(stats.byCountry || {}).length;
+      }
+    } catch (error) {
+      console.error("Error loading statistics:", error);
+    }
+  }
+
+  // Load destinations
+  async loadDestinations() {
+    const searchQuery = document.getElementById("searchInput").value.trim();
+    const statusFilter = document.getElementById("statusFilter").value;
+    const countryFilter = document.getElementById("countryFilter").value;
+    const cityFilter = document.getElementById("cityFilter").value;
+
+    this.currentFilters = {};
+    if (statusFilter) this.currentFilters.status = statusFilter;
+    if (countryFilter) this.currentFilters.country = countryFilter;
+    if (cityFilter) this.currentFilters.city = cityFilter;
+
+    document.getElementById("loadingSpinner").style.display = "block";
+    document.getElementById("destinationsTable").style.display = "none";
+    document.getElementById("noResults").style.display = "none";
+
+    try {
+      let result;
+      if (searchQuery) {
+        result = await DestinationAPI.searchDestinations(
+          searchQuery,
+          this.currentPage,
+          this.currentLimit,
+          this.currentFilters
+        );
+      } else {
+        result = await DestinationAPI.getAllDestinations(
+          this.currentPage,
+          this.currentLimit,
+          this.currentFilters
+        );
+      }
+
+      if (result.success) {
+        this.displayDestinations(result.data, result.pagination);
+      }
+    } catch (error) {
+      console.error("Error loading destinations:", error);
+      alert("Failed to load destinations: " + error.message);
+    } finally {
+      document.getElementById("loadingSpinner").style.display = "none";
+    }
+  }
+
+  // Display destinations
+  displayDestinations(destinations, pagination) {
+    const tbody = document.getElementById("destinationsTableBody");
+    tbody.innerHTML = "";
+
+    if (!destinations || destinations.length === 0) {
+      document.getElementById("noResults").style.display = "block";
+      document.getElementById("resultCount").textContent = "0 results";
+      return;
+    }
+
+    document.getElementById("destinationsTable").style.display = "block";
+    document.getElementById("resultCount").textContent =
+      `${pagination.total} result${pagination.total !== 1 ? "s" : ""}`;
+
+    destinations.forEach((dest) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>
+          <strong>${this.escapeHtml(dest.name)}</strong><br>
+          <small class="text-muted">${this.escapeHtml(dest.slug)}</small>
+        </td>
+        <td>${this.escapeHtml(dest.country)}</td>
+        <td>${this.escapeHtml(dest.city)}</td>
+        <td>
+          <span class="badge bg-info">
+            <i class="bi bi-images"></i> ${dest.images?.length || 0}
+          </span>
+        </td>
+        <td>
+          <span class="badge bg-${dest.status === "active" ? "success" : "secondary"}">
+            ${dest.status}
+          </span>
+        </td>
+        <td>${this.formatDate(dest.createdAt)}</td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button
+              class="btn btn-outline-primary"
+              onclick="controller.openEditModal('${dest.id}')"
+              data-permission="destination:update"
+              title="Edit"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button
+              class="btn btn-outline-info"
+              onclick="controller.openImageModal('${dest.id}')"
+              data-permission="destination:update"
+              title="Manage Images"
+            >
+              <i class="bi bi-images"></i>
+            </button>
+            <button
+              class="btn btn-outline-warning"
+              onclick="controller.toggleStatus('${dest.id}', '${dest.status}')"
+              data-permission="destination:update"
+              title="Toggle Status"
+            >
+              <i class="bi bi-toggle-${dest.status === "active" ? "on" : "off"}"></i>
+            </button>
+            <button
+              class="btn btn-outline-danger"
+              onclick="controller.deleteDestination('${dest.id}')"
+              data-permission="destination:delete"
+              title="Delete"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Update pagination info
+    document.getElementById("showingFrom").textContent = (pagination.page - 1) * pagination.limit + 1;
+    document.getElementById("showingTo").textContent = Math.min(
+      pagination.page * pagination.limit,
+      pagination.total
+    );
+    document.getElementById("totalResults").textContent = pagination.total;
+
+    this.renderPagination(pagination);
+    AuthMiddleware.setupPermissionUI();
+  }
+
+  // Render pagination
+  renderPagination(pagination) {
+    const paginationEl = document.getElementById("pagination");
+    paginationEl.innerHTML = "";
+
+    const totalPages = pagination.totalPages;
+    const currentPage = pagination.page;
+
+    // Previous button
+    const prevLi = document.createElement("li");
+    prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+    prevLi.innerHTML = `<a class="page-link" href="#" onclick="controller.changePage(${currentPage - 1}); return false;">Previous</a>`;
+    paginationEl.appendChild(prevLi);
+
+    // Page numbers
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${i === currentPage ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#" onclick="controller.changePage(${i}); return false;">${i}</a>`;
+      paginationEl.appendChild(li);
+    }
+
+    // Next button
+    const nextLi = document.createElement("li");
+    nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+    nextLi.innerHTML = `<a class="page-link" href="#" onclick="controller.changePage(${currentPage + 1}); return false;">Next</a>`;
+    paginationEl.appendChild(nextLi);
+  }
+
+  // Change page
+  changePage(page) {
+    this.currentPage = page;
+    this.loadDestinations();
+  }
+
+  // Populate filter dropdowns
+  async populateFilters() {
+    try {
+      const result = await DestinationAPI.getAllDestinations(1, 1000);
+      if (result.success) {
+        const destinations = result.data;
+
+        // Get unique countries and cities
+        const countries = [...new Set(destinations.map((d) => d.country))].sort();
+        const cities = [...new Set(destinations.map((d) => d.city))].sort();
+
+        const countrySelect = document.getElementById("countryFilter");
+        countries.forEach((country) => {
+          const option = document.createElement("option");
+          option.value = country;
+          option.textContent = country;
+          countrySelect.appendChild(option);
+        });
+
+        const citySelect = document.getElementById("cityFilter");
+        cities.forEach((city) => {
+          const option = document.createElement("option");
+          option.value = city;
+          option.textContent = city;
+          citySelect.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error("Error populating filters:", error);
+    }
+  }
+
+  // Open create modal
+  openCreateModal() {
+    document.getElementById("modalTitle").textContent = "Add Destination";
+    document.getElementById("destinationForm").reset();
+    document.getElementById("destinationId").value = "";
+    this.destinationModal.show();
+  }
+
+  // Open edit modal
+  async openEditModal(id) {
+    try {
+      const result = await DestinationAPI.getDestinationById(id);
+      if (result.success) {
+        const dest = result.data;
+        document.getElementById("modalTitle").textContent = "Edit Destination";
+        document.getElementById("destinationId").value = dest.id;
+        document.getElementById("destinationName").value = dest.name;
+        document.getElementById("destinationSlug").value = dest.slug;
+        document.getElementById("destinationCountry").value = dest.country;
+        document.getElementById("destinationCity").value = dest.city;
+        document.getElementById("destinationDescription").value = dest.description;
+        document.getElementById("destinationStatus").value = dest.status;
+        this.destinationModal.show();
+      }
+    } catch (error) {
+      alert("Failed to load destination: " + error.message);
+    }
+  }
+
+  // Save destination
+  async saveDestination() {
+    const id = document.getElementById("destinationId").value;
+    const data = {
+      name: document.getElementById("destinationName").value,
+      slug: document.getElementById("destinationSlug").value,
+      country: document.getElementById("destinationCountry").value,
+      city: document.getElementById("destinationCity").value,
+      description: document.getElementById("destinationDescription").value,
+      status: document.getElementById("destinationStatus").value,
+    };
+
+    try {
+      let result;
+      if (id) {
+        result = await DestinationAPI.updateDestination(id, data);
+      } else {
+        result = await DestinationAPI.createDestination(data);
+      }
+
+      if (result.success) {
+        this.destinationModal.hide();
+        await this.loadDestinations();
+        await this.loadStatistics();
+        alert(id ? "Destination updated successfully!" : "Destination created successfully!");
+      }
+    } catch (error) {
+      alert("Failed to save destination: " + error.message);
+    }
+  }
+
+  // Delete destination
+  async deleteDestination(id) {
+    if (!confirm("Are you sure you want to delete this destination?")) {
+      return;
+    }
+
+    try {
+      const result = await DestinationAPI.deleteDestination(id);
+      if (result.success) {
+        await this.loadDestinations();
+        await this.loadStatistics();
+        alert("Destination deleted successfully!");
+      }
+    } catch (error) {
+      alert("Failed to delete destination: " + error.message);
+    }
+  }
+
+  // Toggle status
+  async toggleStatus(id, currentStatus) {
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
+
+    try {
+      const result = await DestinationAPI.updateDestinationStatus(id, newStatus);
+      if (result.success) {
+        await this.loadDestinations();
+        await this.loadStatistics();
+      }
+    } catch (error) {
+      alert("Failed to update status: " + error.message);
+    }
+  }
+
+  // Open image modal
+  async openImageModal(id) {
+    document.getElementById("imageDestinationId").value = id;
+
+    try {
+      const result = await DestinationAPI.getDestinationById(id);
+      if (result.success) {
+        const dest = result.data;
+        this.displayCurrentImages(dest.images || []);
+        this.imageModal.show();
+      }
+    } catch (error) {
+      alert("Failed to load images: " + error.message);
+    }
+  }
+
+  // Display current images
+  displayCurrentImages(images) {
+    const container = document.getElementById("currentImages");
+    container.innerHTML = "";
+
+    if (!images || images.length === 0) {
+      container.innerHTML = '<p class="text-muted">No images uploaded yet</p>';
+      return;
+    }
+
+    images.forEach((imageUrl, index) => {
+      const col = document.createElement("div");
+      col.className = "col-md-4";
+      col.innerHTML = `
+        <div class="card">
+          <img src="${imageUrl}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Image ${index + 1}">
+          <div class="card-body p-2 text-center">
+            <button class="btn btn-sm btn-danger" onclick="controller.removeImage('${imageUrl}')">
+              <i class="bi bi-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+      `;
+      container.appendChild(col);
+    });
+  }
+
+  // Upload images
+  async uploadImages() {
+    const id = document.getElementById("imageDestinationId").value;
+    const files = document.getElementById("uploadImages").files;
+
+    if (!files || files.length === 0) {
+      alert("Please select images to upload");
+      return;
+    }
+
+    try {
+      const result = await API.uploadDestinationImages(id, files);
+      if (result.success) {
+        document.getElementById("uploadImages").value = "";
+        const destResult = await DestinationAPI.getDestinationById(id);
+        if (destResult.success) {
+          this.displayCurrentImages(destResult.data.images || []);
+        }
+        await this.loadDestinations();
+        alert("Images uploaded successfully!");
+      }
+    } catch (error) {
+      alert("Failed to upload images: " + error.message);
+    }
+  }
+
+  // Remove image
+  async removeImage(imageUrl) {
+    const id = document.getElementById("imageDestinationId").value;
+
+    if (!confirm("Are you sure you want to remove this image?")) {
+      return;
+    }
+
+    try {
+      const urlParts = imageUrl.split("/");
+      const fileNameWithExt = urlParts[urlParts.length - 1];
+      const fileName = fileNameWithExt.split(".")[0];
+      
+      const uploadIndex = urlParts.indexOf("upload");
+      const publicIdParts = urlParts.slice(uploadIndex + 2);
+      publicIdParts[publicIdParts.length - 1] = fileName;
+      const publicId = publicIdParts.join("/");
+
+      const result = await API.deleteDestinationImage(id, publicId);
+      if (result.success) {
+        const destResult = await DestinationAPI.getDestinationById(id);
+        if (destResult.success) {
+          this.displayCurrentImages(destResult.data.images || []);
+        }
+        await this.loadDestinations();
+        alert("Image removed successfully!");
+      }
+    } catch (error) {
+      alert("Failed to remove image: " + error.message);
+    }
+  }
+
+  // Utility functions
+  escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+}
+
+// Initialize controller
+let controller;
+
+document.addEventListener("DOMContentLoaded", () => {
+  controller = new DestinationAdminController();
+  controller.init();
+});
+
+// Global functions for onclick handlers
+function openCreateModal() {
+  controller.openCreateModal();
+}
+
+function saveDestination() {
+  controller.saveDestination();
+}
+
+function uploadImages() {
+  controller.uploadImages();
+}
+
 // Export for use in other files
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = DestinationAPI;
+  module.exports = { DestinationAPI, DestinationAdminController };
 }
