@@ -3,7 +3,7 @@ const ResponseUtil = require("../utils/response.util");
 const { MESSAGES } = require("../utils/constants");
 
 class AuthController {
-  // ✅ Sign In with Google - FIXED
+  // Sign In with Google
   async signInWithGoogle(req, res) {
     try {
       const { idToken } = req.body;
@@ -60,14 +60,13 @@ class AuthController {
     }
   }
 
-  // ✅ Login with Email & Password - ALREADY CORRECT
+  // Login with Email & Password
   async login(req, res) {
     try {
       const { email, password } = req.body;
 
       const result = await AuthService.loginWithEmail(email, password);
 
-      // ✅ ĐÃ TRẢ VỀ {user, idToken, refreshToken}
       return ResponseUtil.success(res, result, MESSAGES.LOGIN_SUCCESS);
     } catch (error) {
       if (error.message === MESSAGES.INVALID_CREDENTIALS) {

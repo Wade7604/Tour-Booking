@@ -88,7 +88,7 @@ class AuthService {
     }
   }
 
-  // ✅ Login with Email & Password - FIX ĐỂ VERIFY PASSWORD
+  // Login with Email & Password - FIX ĐỂ VERIFY PASSWORD
   async loginWithEmail(email, password) {
     try {
       const auth = getAuth();
@@ -101,7 +101,7 @@ class AuthService {
         );
       }
 
-      // ✅ Call Firebase Auth REST API để verify password
+      // Call Firebase Auth REST API để verify password
       const response = await fetch(
         `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseApiKey}`,
         {
