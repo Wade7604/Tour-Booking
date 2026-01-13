@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Management - Admin Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+        <h4 class="mb-0">
+          <i class="bi bi-gear-fill"></i>
+          <span class="sidebar-text">Admin Panel</span>
+        </h4>
+        <button class="btn btn-sm btn-outline-primary" onclick="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="/admin/index.html">
+          <i class="bi bi-speedometer2"></i>
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+        <a
+          class="nav-link"
+          href="/admin/users/index.html"
+          data-permission="user:view"
+        >
+          <i class="bi bi-people-fill"></i>
+          <span class="sidebar-text">Users</span>
+        </a>
+        <a
+          class="nav-link"
+          href="/admin/roles/index.html"
+          data-permission="role:view"
+        >
+          <i class="bi bi-shield-fill"></i>
+          <span class="sidebar-text">Roles</span>
+        </a>
+        <a
+          class="nav-link"
+          href="/admin/permissions/index.html"
+          data-permission="permission:view"
+        >
+          <i class="bi bi-key-fill"></i>
+          <span class="sidebar-text">Permissions</span>
+        </a>
+        <a
+          class="nav-link"
+          href="/admin/destinations/index.html"
+          data-permission="destination:view"
+        >
+          <i class="bi bi-geo-alt-fill"></i>
+          <span class="sidebar-text">Destinations</span>
+        </a>
+        <a
+          class="nav-link"
+          href="/admin/tours/index.html"
+          data-permission="tour:view"
+        >
+          <i class="bi bi-map-fill"></i> <span class="sidebar-text">Tours</span>
+        </a>
+        <a
+          class="nav-link active"
+          href="/admin/bookings/index.html"
+          data-permission="booking:view"
+        >
+          <i class="bi bi-calendar-check-fill"></i>
+          <span class="sidebar-text">Bookings</span>
+        </a>
+        <hr style="border-color: rgba(255, 255, 255, 0.3); margin: 20px 0" />
+        <a class="nav-link" href="/index.html">
+          <i class="bi bi-house-fill"></i>
+          <span class="sidebar-text">Back to Home</span>
+        </a>
+        <a class="nav-link" href="#" onclick="AdminUtils.logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="sidebar-text">Logout</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="bi bi-calendar-check-fill"></i> Booking Management</h2>
+          <button
+            class="btn btn-outline-primary"
+            id="refreshBookings"
+            title="Refresh List"
+          >
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="filter-section">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">
+                <i class="bi bi-search"></i> Search
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="searchBooking"
+                placeholder="Search code..."
+              />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">
+                <i class="bi bi-filter"></i> Status
+              </label>
+              <select class="form-select" id="filterStatus">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+             <!--
+            <div class="col-md-3">
+              <label class="form-label">
+                 <i class="bi bi-calendar"></i> Date Range
+              </label>
+               <input type="date" class="form-control" id="filterDate">
+            </div> 
+            -->
+          </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="card">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <span><i class="bi bi-list-ul"></i> Bookings List</span>
+          </div>
+          <div class="card-body">
+            <div id="bookingsLoading" class="loading">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2">Loading bookings...</p>
+            </div>
+            <div id="bookingsTable" class="table-container" style="display: none">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Booking Code</th>
+                    <th>Customer</th>
+                    <th>Tour Info</th>
+                    <th>Subtotal / Status</th>
+                    <th>Status</th>
+                    <th data-any-permission="booking:update">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bookingsTableBody"></tbody>
+              </table>
+              <nav>
+                <ul
+                  class="pagination justify-content-center"
+                  id="bookingsPagination"
+                ></ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/admin-utils.js"></script>
+    <script src="/assets/js/auth-middleware.js"></script>
+    <script src="/assets/js/booking-admin.js"></script>
+    <script src="/assets/js/sidebar-toggle.js"></script>
+    <script>
+      // Init page
+      document.addEventListener("DOMContentLoaded", async () => {
+        const hasAccess = await AuthMiddleware.requirePermission("booking:view");
+        if (!hasAccess) return;
+
+        await AuthMiddleware.setupPermissionUI();
+        bookingManager.initListPage();
+      });
+    </script>
+  </body>
+</html>

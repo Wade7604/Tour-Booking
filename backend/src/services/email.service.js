@@ -86,6 +86,7 @@ class EmailService {
         customerEmail: booking.customerInfo.email,
         customerPhone: booking.customerInfo.phone,
         tourName: tour.name,
+        tourImage: tour.images && tour.images.length > 0 ? tour.images[0] : "",
         startDate: this.formatDate(booking.selectedDate.startDate),
         endDate: this.formatDate(booking.selectedDate.endDate),
         duration: tour.duration 
@@ -104,7 +105,7 @@ class EmailService {
               7 * 24 * 60 * 60 * 1000
           )
         ), // 7 days before tour
-        bookingDetailUrl: `${process.env.FRONTEND_URL}/bookings/${booking.id}`,
+        bookingDetailUrl: `${process.env.FRONTEND_URL}/booking/confirmation/?bookingId=${booking.id}`,
       };
 
       const html = await this.renderTemplate("booking-confirmation", data);
@@ -137,6 +138,7 @@ class EmailService {
         remainingAmount: this.formatCurrency(booking.payment.remainingAmount),
         isFullyPaid: booking.payment.remainingAmount <= 0,
         tourName: tour.name,
+        tourImage: tour.images && tour.images.length > 0 ? tour.images[0] : "",
         startDate: this.formatDate(booking.selectedDate.startDate),
         totalParticipants: booking.totalParticipants,
         bookingDetailUrl: `${process.env.FRONTEND_URL}/bookings/${booking.id}`,

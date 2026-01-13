@@ -323,6 +323,29 @@ class BookingService {
         throw new Error(MESSAGES.FORBIDDEN);
       }
 
+      return this._processPayment(booking, paymentData, userId);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Add payment (admin - no ownership check)
+  async addPaymentAdmin(bookingId, paymentData, userId) {
+    try {
+      const booking = await BookingModel.findById(bookingId);
+
+      if (!booking) {
+        throw new Error(MESSAGES.NOT_FOUND);
+      }
+
+      return this._processPayment(booking, paymentData, userId);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Helper to process payment logic
+  async _processPayment(booking, paymentData, userId)  {
       // Validate payment amount
       if (!paymentData.amount || paymentData.amount <= 0) {
         throw new Error("Invalid payment amount");
@@ -344,7 +367,7 @@ class BookingService {
       }
 
       const updatedBooking = await BookingModel.addPaymentTransaction(
-        bookingId,
+        booking.id,
         paymentData
       );
 
@@ -370,7 +393,7 @@ class BookingService {
         updatedBooking.status === BOOKING_STATUS.PENDING
       ) {
         await this.updateBookingStatus(
-          bookingId,
+          booking.id,
           BOOKING_STATUS.CONFIRMED,
           userId,
           "Auto-confirmed after deposit payment"
@@ -378,9 +401,6 @@ class BookingService {
       }
 
       return updatedBooking;
-    } catch (error) {
-      throw error;
-    }
   }
 
   // Cancel booking (with ownership check)

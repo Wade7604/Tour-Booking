@@ -317,6 +317,19 @@ class BookingModel {
         bookings.push(booking);
       });
 
+      // Populate tour details for each booking
+      const TourModel = require("./tour.model");
+      await Promise.all(
+        bookings.map(async (booking) => {
+          if (booking.tourId) {
+            const tour = await TourModel.findById(booking.tourId);
+            if (tour) {
+              booking.tour = tour;
+            }
+          }
+        })
+      );
+
       return {
         bookings,
         pagination: {

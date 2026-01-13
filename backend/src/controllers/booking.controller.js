@@ -302,6 +302,37 @@ class BookingController {
     }
   };
 
+  // Add payment (Admin)
+  addPaymentAdmin = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.uid;
+
+      const paymentData = {
+        amount: req.body.amount,
+        method: req.body.method,
+        transactionId: req.body.transactionId,
+        note: req.body.note,
+      };
+
+      if (!paymentData.amount) {
+        return ResponseUtil.badRequest(res, "Payment amount is required");
+      }
+
+      const booking = await BookingService.addPaymentAdmin(id, paymentData, userId);
+
+      return ResponseUtil.success(res, booking, "Payment added successfully");
+    } catch (error) {
+      if (error.message === MESSAGES.NOT_FOUND) {
+        return ResponseUtil.notFound(res, error.message);
+      }
+      if (error.message.includes("Invalid") || error.message.includes("exceeds")) {
+        return ResponseUtil.badRequest(res, error.message);
+      }
+      return ResponseUtil.error(res, error.message);
+    }
+  };
+
   // Cancel booking
   cancelBooking = async (req, res) => {
     try {

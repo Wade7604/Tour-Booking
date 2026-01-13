@@ -4,176 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Confirmation</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f7fa;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #ffffff;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
         <tr>
-            <td style="padding: 40px 20px;">
+            <td style="padding: 0;">
                 <!-- Main Container -->
-                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
+                <table role="presentation" style="width: 100%; margin: 0; background-color: #ffffff; border: none;">
                     
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 40px 30px; text-align: center;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">
-                                <i class="bi bi-check-circle-fill" style="font-size: 32px; vertical-align: middle;"></i> Booking Confirmed!
+                        <td style="background-color: #0d6efd; padding: 40px 40px; text-align: center; background-image: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1008/1008010.png" alt="Confirmed" style="width: 64px; height: 64px; margin-bottom: 20px; filter: brightness(0) invert(1);">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                                Booking Confirmed!
                             </h1>
-                            <p style="margin: 10px 0 0; color: #e0f2fe; font-size: 16px;">
-                                Thank you for choosing TourBooking
+                            <p style="margin: 10px 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
+                                Your adventure awaits! Thank you for choosing us.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Booking Code -->
+                    <!-- Destination Image Hero -->
+                    {{#if tourImage}}
                     <tr>
-                        <td style="padding: 30px; text-align: center; background-color: #f0f9ff;">
-                            <p style="margin: 0 0 10px; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-                                Booking Code
-                            </p>
-                            <h2 style="margin: 0; color: #0284c7; font-size: 32px; font-weight: 700; letter-spacing: 2px;">
-                                {{bookingCode}}
-                            </h2>
+                        <td style="padding: 0;">
+                            <img src="{{tourImage}}" alt="Destination" style="width: 100%; height: 350px; object-fit: cover; display: block;">
                         </td>
                     </tr>
+                    {{/if}}
 
-                    <!-- Customer Info -->
+                    <!-- Booking Code Section -->
                     <tr>
-                        <td style="padding: 30px;">
-                            <h3 style="margin: 0 0 20px; color: #1e293b; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                                <i class="bi bi-person-fill" style="color: #0284c7;"></i> Customer Information
-                            </h3>
-                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px; width: 40%;">Full Name:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{customerName}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Email:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{customerEmail}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Phone:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{customerPhone}}</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Tour Info -->
-                    <tr>
-                        <td style="padding: 0 30px 30px;">
-                            <h3 style="margin: 0 0 20px; color: #1e293b; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                                <i class="bi bi-map-fill" style="color: #0284c7;"></i> Tour Details
-                            </h3>
-                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px; width: 40%;">Tour Name:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{tourName}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Departure Date:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{startDate}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Return Date:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{endDate}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Duration:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{duration}}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Participants:</td>
-                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{totalParticipants}} people ({{numberOfAdults}} adults, {{numberOfChildren}} children)</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Pricing -->
-                    <tr>
-                        <td style="padding: 0 30px 30px;">
-                            <h3 style="margin: 0 0 20px; color: #1e293b; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                                <i class="bi bi-credit-card-fill" style="color: #0284c7;"></i> Payment Information
-                            </h3>
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8fafc; border-radius: 8px; padding: 15px;">
-                                <tr>
-                                    <td style="padding: 8px 15px; color: #64748b; font-size: 14px;">Total Amount:</td>
-                                    <td style="padding: 8px 15px; color: #1e293b; font-size: 14px; font-weight: 600; text-align: right;">{{totalAmount}} VNĐ</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 15px; color: #64748b; font-size: 14px;">Paid Amount:</td>
-                                    <td style="padding: 8px 15px; color: #059669; font-size: 14px; font-weight: 600; text-align: right;">{{paidAmount}} VNĐ</td>
-                                </tr>
-                                <tr style="border-top: 2px dashed #e2e8f0;">
-                                    <td style="padding: 12px 15px 8px; color: #1e293b; font-size: 16px; font-weight: 700;">Remaining:</td>
-                                    <td style="padding: 12px 15px 8px; color: #dc2626; font-size: 18px; font-weight: 700; text-align: right;">{{remainingAmount}} VNĐ</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <!-- Status Badge -->
-                    <tr>
-                        <td style="padding: 0 30px 30px; text-align: center;">
-                            <div style="display: inline-block; background-color: #dcfce7; color: #166534; padding: 12px 24px; border-radius: 50px; font-size: 14px; font-weight: 600;">
-                                <i class="bi bi-check-circle"></i> Status: {{status}}
+                        <td style="padding: 40px 40px 20px; text-align: center;">
+                            <p style="margin: 0 0 10px; color: #6c757d; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Booking Reference</p>
+                            <div style="display: inline-block; background-color: #e7f1ff; padding: 15px 30px; border-radius: 6px; border: 1px dashed #0d6efd;">
+                                <h2 style="margin: 0; color: #0d6efd; font-size: 32px; font-weight: 800; letter-spacing: 2px; font-family: monospace;">{{bookingCode}}</h2>
                             </div>
                         </td>
                     </tr>
 
-                    <!-- Important Notes -->
+                    <!-- Two Column Layout for Customer & Tour -->
                     <tr>
-                        <td style="padding: 0 30px 30px;">
-                            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px 20px; border-radius: 4px;">
-                                <h4 style="margin: 0 0 10px; color: #92400e; font-size: 14px; font-weight: 600;">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> Important Notes
-                                </h4>
-                                <ul style="margin: 0; padding-left: 20px; color: #78350f; font-size: 13px; line-height: 1.6;">
-                                    <li>Please pay the remaining amount before {{paymentDeadline}}</li>
-                                    <li>Bring your ID card when joining the tour</li>
-                                    <li>Arrive at the meeting point 30 minutes early</li>
-                                    <li>Contact hotline for support: <strong>1900-xxxx</strong></li>
-                                </ul>
+                        <td style="padding: 20px 40px;">
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <!-- Customer Info -->
+                                    <td valign="top" style="width: 48%; padding-right: 2%;">
+                                        <h3 style="margin: 0 0 15px; color: #212529; font-size: 16px; font-weight: 700; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">
+                                            Customer Details
+                                        </h3>
+                                        <table role="presentation" style="width: 100%;">
+                                            <tr>
+                                                <td style="padding: 5px 0; color: #6c757d; font-size: 14px;">Name:</td>
+                                                <td style="padding: 5px 0; color: #212529; font-size: 14px; font-weight: 600; text-align: right;">{{customerName}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 5px 0; color: #6c757d; font-size: 14px;">Email:</td>
+                                                <td style="padding: 5px 0; color: #212529; font-size: 14px; font-weight: 600; text-align: right;">{{customerEmail}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 5px 0; color: #6c757d; font-size: 14px;">Phone:</td>
+                                                <td style="padding: 5px 0; color: #212529; font-size: 14px; font-weight: 600; text-align: right;">{{customerPhone}}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <!-- Tour Info -->
+                                    <td valign="top" style="width: 48%; padding-left: 2%;">
+                                        <h3 style="margin: 0 0 15px; color: #212529; font-size: 16px; font-weight: 700; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">
+                                            Tour Information
+                                        </h3>
+                                        <table role="presentation" style="width: 100%;">
+                                            <tr>
+                                                <td style="padding: 5px 0; color: #6c757d; font-size: 14px;">Tour:</td>
+                                                <td style="padding: 5px 0; color: #212529; font-size: 14px; font-weight: 600; text-align: right;">{{tourName}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 5px 0; color: #6c757d; font-size: 14px;">Departure:</td>
+                                                <td style="padding: 5px 0; color: #212529; font-size: 14px; font-weight: 600; text-align: right;">{{startDate}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 5px 0; color: #6c757d; font-size: 14px;">Duration:</td>
+                                                <td style="padding: 5px 0; color: #212529; font-size: 14px; font-weight: 600; text-align: right;">{{duration}}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Payment Summary -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px;">
+                                <h3 style="margin: 0 0 20px; color: #212529; font-size: 16px; font-weight: 700; text-align: center;">Transaction Summary</h3>
+                                <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #495057; font-size: 14px;">Total Amount</td>
+                                        <td style="padding: 8px 0; color: #212529; font-size: 14px; font-weight: 700; text-align: right;">{{totalAmount}} VNĐ</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #495057; font-size: 14px;">Paid Amount</td>
+                                        <td style="padding: 8px 0; color: #198754; font-size: 14px; font-weight: 700; text-align: right;">{{paidAmount}} VNĐ</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="border-bottom: 1px dashed #dee2e6; padding: 10px 0;"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 15px 0 5px; color: #212529; font-size: 16px; font-weight: 700;">Remaining Balance</td>
+                                        <td style="padding: 15px 0 5px; color: #dc3545; font-size: 18px; font-weight: 800; text-align: right;">{{remainingAmount}} VNĐ</td>
+                                    </tr>
+                                </table>
                             </div>
                         </td>
                     </tr>
 
-                    <!-- CTA Button -->
+                    <!-- Important Note -->
                     <tr>
-                        <td style="padding: 0 30px 40px; text-align: center;">
-                            <a href="{{bookingDetailUrl}}" style="display: inline-block; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
-                                <i class="bi bi-eye-fill"></i> View Booking Details
-                            </a>
+                        <td style="padding: 0 40px 40px;">
+                            <div style="border-left: 4px solid #ffc107; background-color: #fff3cd; padding: 15px 20px; border-radius: 4px;">
+                                <p style="margin: 0; color: #856404; font-size: 14px; display: flex; align-items: flex-start; gap: 10px;">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/1008/1008967.png" alt="Important" style="width: 20px; height: 20px; filter: invert(34%) sepia(61%) saturate(2259%) hue-rotate(36deg) brightness(97%) contrast(100%); flex-shrink: 0; margin-top: 2px;">
+                                    <span><strong>Important:</strong> Please settle your remaining balance by <strong>{{paymentDeadline}}</strong>. A valid ID or Passport is required for check-in.</span>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- CTA -->
+                    <tr>
+                        <td style="padding: 0 40px 40px; text-align: center;">
+                            <a href="{{bookingDetailUrl}}" style="display: inline-block; background-color: #0d6efd; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 600; transition: background-color 0.3s;">Manage My Booking</a>
                         </td>
                     </tr>
 
                     <!-- Footer -->
                     <tr>
-                        <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0 0 10px; color: #64748b; font-size: 14px;">
-                                Thank you for choosing TourBooking!
-                            </p>
-                            <p style="margin: 0 0 15px; color: #94a3b8; font-size: 13px;">
-                                If you have any questions, please contact us
-                            </p>
-                            <div style="margin: 15px 0;">
-                                <a href="mailto:support@tourbooking.com" style="color: #0284c7; text-decoration: none; font-size: 14px; margin: 0 10px;">
-                                    <i class="bi bi-envelope-fill"></i> support@tourbooking.com
-                                </a>
-                                <span style="color: #cbd5e1;">|</span>
-                                <a href="tel:1900xxxx" style="color: #0284c7; text-decoration: none; font-size: 14px; margin: 0 10px;">
-                                    <i class="bi bi-telephone-fill"></i> 1900-xxxx
-                                </a>
-                            </div>
-                            <p style="margin: 15px 0 0; color: #94a3b8; font-size: 12px;">
+                        <td style="background-color: #212529; padding: 30px 40px; text-align: center;">
+                            <p style="margin: 0 0 10px; color: #adb5bd; font-size: 14px;">TourBooking Inc.</p>
+                            <p style="margin: 0; color: #6c757d; font-size: 12px; line-height: 1.5;">
+                                If you have any questions, contact us at <a href="mailto:support@tourbooking.com" style="color: #0d6efd; text-decoration: none;">support@tourbooking.com</a><br>
                                 © 2026 TourBooking. All rights reserved.
                             </p>
                         </td>
                     </tr>
-
                 </table>
+                
+                <p style="text-align: center; color: #adb5bd; font-size: 12px; margin-top: 20px;">
+                    You received this email because you made a booking on our website.
+                </p>
             </td>
         </tr>
     </table>
