@@ -201,6 +201,29 @@ class TourService {
     }
   }
 
+ /**
+ * Search tours with filters
+ * @param {string} query - Search query string
+ * @param {Object} options - Search options
+ * @returns {Promise<Object>} Search results with pagination
+ */
+async searchTours(query, options = {}) {
+  try {
+    // Use the existing TourModel.search() method which handles Elasticsearch
+    // and falls back to basic Firestore search
+    const result = await TourModel.search(query, options);
+    
+    // Attach available slots to tours
+    if (result.tours) {
+      result.tours = result.tours.map(tour => this._attachAvailableSlots(tour));
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in searchTours service:", error);
+    throw error;
+  }
+}
   // Increment booked slots
   async incrementBookedSlots(tourId, startDate, endDate, slots = 1) {
     try {

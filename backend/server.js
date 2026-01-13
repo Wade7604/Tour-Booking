@@ -3,6 +3,8 @@ const { initializeFirebase } = require("./src/config/firebase.config");
 const {
   initializeElasticsearch,
   createUserIndex,
+  createTourIndex,
+  createDestinationIndex,
   testConnection,
 } = require("./src/config/elasticsearch.config");
 
@@ -17,6 +19,8 @@ initializeElasticsearch();
   try {
     await testConnection();
     await createUserIndex();
+    await createTourIndex();
+    await createDestinationIndex();
   } catch (error) {
     console.error("Failed to setup Elasticsearch:", error);
   }

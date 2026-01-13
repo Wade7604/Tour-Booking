@@ -13,6 +13,205 @@ class ElasticsearchService {
     return this.client;
   }
 
+  // ==================== TOUR METHODS ====================
+  // Index a tour to Elasticsearch
+  async indexTour(tour) {
+    try {
+      const client = this.getClient();
+
+      await client.index({
+        index: "tours",
+        id: tour.id,
+        document: {
+          id: tour.id,
+          name: tour.name,
+          slug: tour.slug,
+          description: tour.description,
+          destinationId: tour.destinationId,
+          destinations: tour.destinations || [],
+          duration: tour.duration,
+          price: tour.price,
+          difficulty: tour.difficulty,
+          tourType: tour.tourType,
+          status: tour.status,
+          featured: tour.featured || false,
+          coverImage: tour.coverImage,
+          images: tour.images || [],
+          createdAt: tour.createdAt,
+          updatedAt: tour.updatedAt,
+        },
+        refresh: true,
+      });
+
+      console.log(`✅ Indexed tour: ${tour.id}`);
+    } catch (error) {
+      console.error("❌ Failed to index tour:", error);
+      throw error;
+    }
+  }
+
+  // Update a tour in Elasticsearch
+  async updateTour(tourId, updateData) {
+    try {
+      const client = this.getClient();
+
+      await client.update({
+        index: "tours",
+        id: tourId,
+        doc: {
+          ...updateData,
+          updatedAt: new Date().toISOString(),
+        },
+        refresh: true,
+      });
+
+      console.log(`✅ Updated tour in ES: ${tourId}`);
+    } catch (error) {
+      console.error("❌ Failed to update tour:", error);
+      throw error;
+    }
+  }
+
+  // Delete a tour from Elasticsearch
+  async deleteTour(tourId) {
+    try {
+      const client = this.getClient();
+
+      await client.delete({
+        index: "tours",
+        id: tourId,
+        refresh: true,
+      });
+
+      console.log(`✅ Deleted tour from ES: ${tourId}`);
+    } catch (error) {
+      if (error.meta?.statusCode === 404) {
+        console.log(`⏭️  Tour not found in ES: ${tourId}`);
+        return;
+      }
+      console.error("❌ Failed to delete tour:", error);
+      throw error;
+    }
+  }
+
+  // Search tours in Elasticsearch
+  async searchTours(searchTerm, options = {}) {
+    try {
+      const client = this.getClient();
+      const {
+        page = 1,
+        limit = 10,
+        status,
+        difficulty,
+        tourType,
+        destinationId,
+        featured,
+        minPrice,
+        maxPrice,
+        sortBy = "createdAt",
+        sortOrder = "desc",
+      } = options;
+
+      const must = [];
+      const filter = [];
+
+      // Text search
+      if (searchTerm && searchTerm.trim()) {
+        must.push({
+          multi_match: {
+            query: searchTerm,
+            fields: ["name^5", "description^2", "destinations.name^3"],
+            fuzziness: "AUTO",
+          },
+        });
+      }
+
+      // Status filter
+      if (status) {
+        filter.push({ term: { status: status } });
+      }
+
+      // Difficulty filter (handles multiple values)
+      if (difficulty) {
+        const diffs = difficulty.split(",");
+        filter.push({ terms: { difficulty: diffs } });
+      }
+
+      // Tour Type filter (handles multiple values)
+      if (tourType) {
+        const types = tourType.split(",");
+        filter.push({ terms: { tourType: types } });
+      }
+
+      // Destination filter
+      if (destinationId) {
+        filter.push({ term: { destinationId: destinationId } });
+      }
+
+      // Featured filter
+      if (featured !== undefined) {
+        filter.push({ term: { featured } });
+      }
+
+      // Price range filter
+      if (minPrice !== undefined || maxPrice !== undefined) {
+        const range = {};
+        if (minPrice !== undefined) range.gte = minPrice;
+        if (maxPrice !== undefined) range.lte = maxPrice;
+        filter.push({ range: { "price.adult": range } });
+      }
+
+      const from = (page - 1) * limit;
+
+      let sortField = sortBy;
+      if (sortBy === 'price') {
+        sortField = 'price.adult';
+      } else if (sortBy === 'name') {
+        sortField = 'name.keyword';
+      }
+
+      const queryBody = {
+        index: "tours",
+        from,
+        size: limit,
+        query: {
+          bool: {
+            must: must.length > 0 ? must : [{ match_all: {} }],
+            filter: filter,
+          },
+        },
+        sort: [
+          { [sortField]: { order: sortOrder } }
+        ],
+      };
+
+      console.log("🔍 ES Search Query:", JSON.stringify(queryBody, null, 2));
+      const response = await client.search(queryBody);
+
+      const tours = response.hits.hits.map((hit) => hit._source);
+      const total = response.hits.total.value;
+
+      return {
+        tours,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error) {
+      console.error("❌ Elasticsearch tour search failed:", error.message);
+      if (error.meta) {
+        if (error.meta.body) {
+           console.error("   ES Error Body:", JSON.stringify(error.meta.body, null, 2));
+        }
+        console.error("   ES Status Code:", error.meta.statusCode);
+      }
+      throw error;
+    }
+  }
+
   // ==================== USER METHODS ====================
 
   // Index a user document

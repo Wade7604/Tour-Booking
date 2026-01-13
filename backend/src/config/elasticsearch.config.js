@@ -144,8 +144,128 @@ const createUserIndex = async () => {
       console.log(`⏭️  Elasticsearch index already exists: ${indexName}`);
     }
   } catch (error) {
-    console.error("❌ Error creating user index:");
-    console.error(`   ${error.message}`);
+    console.error("❌ Error creating user index:", error.message);
+    throw error;
+  }
+};
+
+const createTourIndex = async () => {
+  try {
+    const client = getElasticsearch();
+    const indexName = "tours";
+
+    const exists = await client.indices.exists({ index: indexName });
+
+    if (!exists) {
+      await client.indices.create({
+        index: indexName,
+        body: {
+          settings: {
+            number_of_shards: 1,
+            number_of_replicas: 1,
+            analysis: {
+              analyzer: {
+                custom_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: ["lowercase", "asciifolding"],
+                },
+              },
+            },
+          },
+          mappings: {
+            properties: {
+              id: { type: "keyword" },
+              name: {
+                type: "text",
+                analyzer: "custom_analyzer",
+                fields: { keyword: { type: "keyword" } },
+              },
+              slug: { type: "keyword" },
+              description: { type: "text", analyzer: "custom_analyzer" },
+              destinationId: { type: "keyword" },
+              destinations: {
+                properties: {
+                  name: {
+                    type: "text",
+                    analyzer: "custom_analyzer",
+                    fields: { keyword: { type: "keyword" } },
+                  }
+                }
+              },
+              difficulty: { type: "keyword" },
+              tourType: { type: "keyword" },
+              status: { type: "keyword" },
+              featured: { type: "boolean" },
+              "price.adult": { type: "double" },
+              createdAt: { type: "date" },
+              updatedAt: { type: "date" },
+            },
+          },
+        },
+      });
+      console.log(`✅ Created Elasticsearch index: ${indexName}`);
+    } else {
+      console.log(`⏭️  Elasticsearch index already exists: ${indexName}`);
+    }
+  } catch (error) {
+    console.error("❌ Error creating tour index:", error.message);
+    throw error;
+  }
+};
+
+const createDestinationIndex = async () => {
+  try {
+    const client = getElasticsearch();
+    const indexName = "destinations";
+
+    const exists = await client.indices.exists({ index: indexName });
+
+    if (!exists) {
+      await client.indices.create({
+        index: indexName,
+        body: {
+          settings: {
+            number_of_shards: 1,
+            number_of_replicas: 1,
+            analysis: {
+              analyzer: {
+                custom_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: ["lowercase", "asciifolding"],
+                },
+              },
+            },
+          },
+          mappings: {
+            properties: {
+              id: { type: "keyword" },
+              name: {
+                type: "text",
+                analyzer: "custom_analyzer",
+                fields: { keyword: { type: "keyword" } },
+              },
+              slug: { type: "keyword" },
+              country: {
+                type: "text",
+                fields: { keyword: { type: "keyword" } },
+              },
+              city: {
+                type: "text",
+                fields: { keyword: { type: "keyword" } },
+              },
+              status: { type: "keyword" },
+              createdAt: { type: "date" },
+              updatedAt: { type: "date" },
+            },
+          },
+        },
+      });
+      console.log(`✅ Created Elasticsearch index: ${indexName}`);
+    }
+  } catch (error) {
+    console.error("❌ Error creating destination index:", error.message);
     throw error;
   }
 };
@@ -173,6 +293,8 @@ module.exports = {
   initializeElasticsearch,
   getElasticsearch,
   createUserIndex,
+  createTourIndex,
+  createDestinationIndex,
   deleteUserIndex,
   testConnection,
 };

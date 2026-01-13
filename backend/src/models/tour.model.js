@@ -65,12 +65,12 @@ class TourModel {
 
       await tourRef.set(newTour);
 
-      // Index to Elasticsearch (TODO: Implement ElasticsearchService.indexTour)
-      // try {
-      //   await ElasticsearchService.indexTour(newTour);
-      // } catch (esError) {
-      //   console.error("Failed to index tour to ES:", esError);
-      // }
+      // Index to Elasticsearch
+      try {
+        await ElasticsearchService.indexTour(newTour);
+      } catch (esError) {
+        console.error("Failed to index tour to ES:", esError);
+      }
 
       return newTour;
     } catch (error) {
@@ -136,12 +136,12 @@ class TourModel {
       const updatedDoc = await tourRef.get();
       const tour = updatedDoc.data();
 
-      // Update in Elasticsearch (TODO: Implement)
-      // try {
-      //   await ElasticsearchService.updateTour(tourId, updatePayload);
-      // } catch (esError) {
-      //   console.error("Failed to update tour in ES:", esError);
-      // }
+      // Update in Elasticsearch
+      try {
+        await ElasticsearchService.updateTour(tourId, updatePayload);
+      } catch (esError) {
+        console.error("Failed to update tour in ES:", esError);
+      }
 
       return tour;
     } catch (error) {
@@ -154,12 +154,12 @@ class TourModel {
     try {
       await this.collection.doc(tourId).delete();
 
-      // Delete from Elasticsearch (TODO: Implement)
-      // try {
-      //   await ElasticsearchService.deleteTour(tourId);
-      // } catch (esError) {
-      //   console.error("Failed to delete tour from ES:", esError);
-      // }
+      // Delete from Elasticsearch
+      try {
+        await ElasticsearchService.deleteTour(tourId);
+      } catch (esError) {
+        console.error("Failed to delete tour from ES:", esError);
+      }
 
       return true;
     } catch (error) {
@@ -191,10 +191,20 @@ class TourModel {
         query = query.where("status", "==", status);
       }
       if (difficulty) {
-        query = query.where("difficulty", "==", difficulty);
+        const difficultyArray = difficulty.split(",");
+        if (difficultyArray.length > 1) {
+          query = query.where("difficulty", "in", difficultyArray);
+        } else {
+          query = query.where("difficulty", "==", difficulty);
+        }
       }
       if (tourType) {
-        query = query.where("tourType", "==", tourType);
+        const tourTypeArray = tourType.split(",");
+        if (tourTypeArray.length > 1) {
+          query = query.where("tourType", "in", tourTypeArray);
+        } else {
+          query = query.where("tourType", "==", tourType);
+        }
       }
       if (destinationId) {
         query = query.where("destinationId", "==", destinationId);
@@ -204,7 +214,7 @@ class TourModel {
       }
 
       // Apply sorting
-      query = query.orderBy(sortBy, sortOrder);
+      let sortQuery = query.orderBy(sortBy, sortOrder);
 
       // Get total count
       const countSnapshot = await query.get();
@@ -212,16 +222,61 @@ class TourModel {
 
       // Apply pagination
       const offset = (page - 1) * limit;
-      const snapshot = await query.limit(limit).offset(offset).get();
+      
+      let snapshot;
+      try {
+        snapshot = await sortQuery.limit(limit).offset(offset).get();
+      } catch (error) {
+        // Check if error is due to missing index
+        if (error.code === 9 || error.message.includes("requires an index")) {
+           console.warn("⚠️ Missing Firestore index. Falling back to in-memory sorting.");
+           if (error.details) console.warn(`   ${error.details}`);
+           
+           // Fetch all matching documents without sorting
+           const allDocsSnapshot = await query.get();
+           
+           // Manual Sort
+           const allDocs = [];
+           allDocsSnapshot.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
+           
+           // Sort function
+           allDocs.sort((a, b) => {
+             let valA = a[sortBy];
+             let valB = b[sortBy];
+             
+             // Handle dates
+             if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+               valA = new Date(valA).getTime();
+               valB = new Date(valB).getTime();
+             }
+             
+             if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+             if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+             return 0;
+           });
+           
+           // Manual Pagination
+           const pagedDocs = allDocs.slice(offset, offset + limit);
+           
+           // Mock snapshot structure for compatibility
+           snapshot = {
+             forEach: (callback) => pagedDocs.forEach(doc => callback({ id: doc.id, data: () => doc }))
+           };
+        } else {
+          throw error;
+        }
+      }
 
       const tours = [];
       const destinationIds = new Set();
 
       snapshot.forEach((doc) => {
-        const tour = { id: doc.id, ...doc.data() };
-        // Filter by price if specified
-        if (minPrice !== undefined && tour.price.adult < minPrice) return;
-        if (maxPrice !== undefined && tour.price.adult > maxPrice) return;
+        // If it's a real firestore doc, use .data(), otherwise it's our mock object
+        const tour = doc.data ? { id: doc.id, ...doc.data() } : doc;
+        
+        // Filter by price if specified (already done in fallback, but good to keep consistency)
+        if (minPrice !== undefined && (tour.price?.adult || 0) < minPrice) return;
+        if (maxPrice !== undefined && (tour.price?.adult || 0) > maxPrice) return;
         
         tours.push(tour);
         if (tour.destinationId) {
@@ -262,20 +317,25 @@ class TourModel {
     }
   }
 
-  // Search tours using Elasticsearch (TODO: Implement)
+  // Search tours using Elasticsearch
   async search(searchTerm, options = {}) {
     try {
-      // Fallback to basic search until Elasticsearch is implemented
+      return await ElasticsearchService.searchTours(searchTerm, options);
+    } catch (error) {
+      console.error("Elasticsearch search failed, falling back to basic search:", error);
+      // Fallback to basic search if Elasticsearch fails
       const allTours = await this.findAll(options);
       if (!searchTerm) return allTours;
       
-      const filtered = allTours.tours.filter(tour => 
-        tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tour.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const filtered = allTours.tours.filter(tour => {
+        const name = (tour.name || "").toLowerCase();
+        const description = (tour.description || "").toLowerCase();
+        const term = searchTerm.toLowerCase();
+        
+        return name.includes(term) || description.includes(term);
+      });
+      
       return { tours: filtered, pagination: allTours.pagination };
-    } catch (error) {
-      throw error;
     }
   }
 

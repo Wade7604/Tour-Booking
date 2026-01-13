@@ -183,12 +183,15 @@ class TourController {
         limit: parseInt(req.query.limit) || 10,
         difficulty: req.query.difficulty,
         tourType: req.query.tourType,
-        minPrice: req.query.minPrice,
-        maxPrice: req.query.maxPrice,
+        minPrice: req.query.minPrice ? parseFloat(req.query.minPrice) : undefined,
+        maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice) : undefined,
+        status: req.query.status || 'active',
+        sortBy: req.query.sortBy || 'createdAt',
+        sortOrder: req.query.sortOrder || 'desc',
       };
 
       // Search functionality is still basic in TourModel, but we route it through service
-      const results = await TourModel.search(q, options);
+      const results = await TourService.searchTours(q, options);
 
       return ResponseUtil.success(res, results);
     } catch (error) {

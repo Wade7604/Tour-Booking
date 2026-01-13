@@ -43,6 +43,8 @@ async function loadTours() {
   const scrollContainer = document.getElementById("toursScrollContainer");
   const container = document.getElementById("toursContainer");
 
+  if (!loading || !scrollContainer || !container) return;
+
   try {
     const response = await API.get("/tours?limit=12&status=active");
     const data = response.data || response;
@@ -169,6 +171,8 @@ function scrollTours(direction) {
 async function loadDestinations() {
   const loading = document.getElementById("destinationsLoading");
   const container = document.getElementById("destinationsContainer");
+
+  if (!loading || !container) return;
 
   try {
     const response = await API.get("/destinations?limit=8&status=active");
