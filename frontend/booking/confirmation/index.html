@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Confirmation - TourBooking</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/booking.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="bi bi-compass-fill"></i>
+          <span>TourBooking</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <a class="nav-link" href="/#tours">Tours</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/#destinations">Destinations</a>
+            </li>
+            <li class="nav-item" id="adminNavItem" style="display: none">
+              <a class="nav-link" href="/admin">
+                <i class="bi bi-person-gear"></i> Admin
+              </a>
+            </li>
+            <li class="nav-item ms-3">
+              <button
+                id="authBtn"
+                class="btn btn-gradient"
+                onclick="handleAuth()"
+              >
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-3 text-muted">Loading booking details...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="container mt-5" style="display: none">
+      <div class="alert alert-danger text-center">
+        <h4><i class="bi bi-exclamation-triangle"></i> Booking Not Found</h4>
+        <p>The booking you're looking for doesn't exist or has been removed.</p>
+        <a href="/" class="btn btn-gradient mt-3">
+          <i class="bi bi-house"></i> Back to Home
+        </a>
+      </div>
+    </div>
+
+    <!-- Confirmation Content -->
+    <div id="confirmationContent" style="display: none">
+      <!-- Success Header -->
+      <section class="confirmation-header">
+        <div class="container">
+          <div class="confirmation-success-card">
+            <div class="success-icon">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <h1 class="success-title">Booking Confirmed!</h1>
+            <p class="success-subtitle">
+              Thank you for booking with TourBooking
+            </p>
+            <div class="booking-code-display">
+              <span class="booking-code-label">Booking Code</span>
+              <h2 class="booking-code" id="bookingCode">-</h2>
+            </div>
+            <p class="success-note">
+              <i class="bi bi-envelope-check"></i>
+              A confirmation email has been sent to <strong id="customerEmail">-</strong>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Booking Details -->
+      <section class="confirmation-details py-5">
+        <div class="container">
+          <div class="row g-4">
+            <!-- Left Column - Booking Info -->
+            <div class="col-lg-8">
+              <!-- Tour Information -->
+              <div class="detail-card">
+                <div class="detail-card-header">
+                  <i class="bi bi-map"></i>
+                  <h3>Tour Information</h3>
+                </div>
+                <div class="detail-card-body">
+                  <div class="tour-info-grid">
+                    <div class="tour-info-item">
+                      <span class="info-label">Tour Name</span>
+                      <span class="info-value" id="tourName">-</span>
+                    </div>
+                    <div class="tour-info-item">
+                      <span class="info-label">Duration</span>
+                      <span class="info-value" id="tourDuration">-</span>
+                    </div>
+                    <div class="tour-info-item">
+                      <span class="info-label">Departure Date</span>
+                      <span class="info-value" id="departureDate">-</span>
+                    </div>
+                    <div class="tour-info-item">
+                      <span class="info-label">Return Date</span>
+                      <span class="info-value" id="returnDate">-</span>
+                    </div>
+                    <div class="tour-info-item">
+                      <span class="info-label">Total Participants</span>
+                      <span class="info-value" id="totalParticipants">-</span>
+                    </div>
+                    <div class="tour-info-item">
+                      <span class="info-label">Status</span>
+                      <span class="badge-status" id="bookingStatus">-</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Customer Information -->
+              <div class="detail-card">
+                <div class="detail-card-header">
+                  <i class="bi bi-person"></i>
+                  <h3>Customer Information</h3>
+                </div>
+                <div class="detail-card-body">
+                  <div class="customer-info-grid">
+                    <div class="info-row">
+                      <span class="info-label">Full Name</span>
+                      <span class="info-value" id="customerName">-</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Email</span>
+                      <span class="info-value" id="customerEmailDetail">-</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Phone</span>
+                      <span class="info-value" id="customerPhone">-</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Address</span>
+                      <span class="info-value" id="customerAddress">-</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Next Steps -->
+              <div class="detail-card next-steps-card">
+                <div class="detail-card-header">
+                  <i class="bi bi-list-check"></i>
+                  <h3>Next Steps</h3>
+                </div>
+                <div class="detail-card-body">
+                  <div class="next-steps-list">
+                    <div class="next-step-item">
+                      <div class="step-number">1</div>
+                      <div class="step-content">
+                        <h4>Complete Payment</h4>
+                        <p>Please complete the remaining payment before <strong id="paymentDeadline">-</strong></p>
+                      </div>
+                    </div>
+                    <div class="next-step-item">
+                      <div class="step-number">2</div>
+                      <div class="step-content">
+                        <h4>Prepare Documents</h4>
+                        <p>Bring your ID/Passport and this booking confirmation</p>
+                      </div>
+                    </div>
+                    <div class="next-step-item">
+                      <div class="step-number">3</div>
+                      <div class="step-content">
+                        <h4>Arrive Early</h4>
+                        <p>Please arrive at the meeting point 30 minutes before departure</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column - Payment Summary -->
+            <div class="col-lg-4">
+              <!-- Payment Summary -->
+              <div class="detail-card payment-summary-card sticky-top">
+                <div class="detail-card-header">
+                  <i class="bi bi-credit-card"></i>
+                  <h3>Payment Summary</h3>
+                </div>
+                <div class="detail-card-body">
+                  <div class="payment-breakdown">
+                    <div class="payment-row">
+                      <span>Subtotal</span>
+                      <span id="subtotal">-</span>
+                    </div>
+                    <div class="payment-row" id="discountRow" style="display: none">
+                      <span>Discount</span>
+                      <span class="text-success" id="discount">-</span>
+                    </div>
+                    <div class="payment-row" id="taxRow" style="display: none">
+                      <span>Tax</span>
+                      <span id="tax">-</span>
+                    </div>
+                    <div class="payment-divider"></div>
+                    <div class="payment-row payment-total">
+                      <span>Total Amount</span>
+                      <span id="totalAmount">-</span>
+                    </div>
+                    <div class="payment-divider"></div>
+                    <div class="payment-row payment-deposit">
+                      <span>Deposit Paid</span>
+                      <span class="text-success" id="depositPaid">-</span>
+                    </div>
+                    <div class="payment-row payment-remaining">
+                      <span>Remaining</span>
+                      <span class="text-danger" id="remainingAmount">-</span>
+                    </div>
+                  </div>
+
+                  <div class="payment-status-badge" id="paymentStatusBadge">
+                    <i class="bi bi-info-circle"></i>
+                    <span id="paymentStatusText">Awaiting deposit payment</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <button class="btn btn-gradient w-100 mb-2" onclick="window.print()">
+                  <i class="bi bi-printer"></i> Print Confirmation
+                </button>
+                <a href="/" class="btn btn-outline-primary w-100">
+                  <i class="bi bi-house"></i> Back to Home
+                </a>
+              </div>
+
+              <!-- Contact Support -->
+              <div class="contact-support-card">
+                <h4><i class="bi bi-headset"></i> Need Help?</h4>
+                <p>Contact our support team</p>
+                <div class="support-contacts">
+                  <a href="mailto:support@tourbooking.com">
+                    <i class="bi bi-envelope"></i> support@tourbooking.com
+                  </a>
+                  <a href="tel:1900xxxx">
+                    <i class="bi bi-telephone"></i> 1900-xxxx
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container text-center">
+        <p class="mb-0" style="font-size: 1.1rem">
+          &copy; 2026 TourBooking. Made with Trường Thịnh & Thiện Nhân in
+          Vietnam
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth-middleware.js"></script>
+    <script src="../../assets/js/booking-confirmation.js"></script>
+  </body>
+</html>

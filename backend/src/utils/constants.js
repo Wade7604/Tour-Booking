@@ -41,6 +41,40 @@ const TOUR_TYPE = {
   CRUISE: "cruise",
 };
 
+// Booking status
+const BOOKING_STATUS = {
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  CANCELLED: "cancelled",
+  COMPLETED: "completed",
+  REFUNDED: "refunded",
+};
+
+// Payment status
+const PAYMENT_STATUS = {
+  PENDING: "pending",
+  COMPLETED: "completed",
+  FAILED: "failed",
+  REFUNDED: "refunded",
+};
+
+// Payment methods
+const PAYMENT_METHOD = {
+  BANK_TRANSFER: "bank_transfer",
+  CREDIT_CARD: "credit_card",
+  CASH: "cash",
+  VNPAY: "vnpay",
+  MOMO: "momo",
+};
+
+// Participant types
+const PARTICIPANT_TYPE = {
+  ADULT: "adult",
+  CHILD: "child",
+  INFANT: "infant",
+};
+
+
 // HTTP Status codes
 const HTTP_STATUS = {
   OK: 200,
@@ -125,4 +159,9 @@ module.exports = {
   HTTP_STATUS,
   MESSAGES,
   PERMISSIONS,
+  BOOKING_STATUS,
+  PAYMENT_STATUS,
+  PAYMENT_METHOD,
+  PARTICIPANT_TYPE,
 };
+

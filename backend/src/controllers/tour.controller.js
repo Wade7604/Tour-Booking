@@ -1,4 +1,4 @@
-const TourModel = require("../models/tour.model");
+const TourService = require("../services/tour.service");
 const ResponseUtil = require("../utils/response.util");
 const { HTTP_STATUS, MESSAGES } = require("../utils/constants");
 
@@ -8,11 +8,11 @@ class TourController {
     try {
       const tourData = {
         ...req.body,
-        createdBy: req.user.uid || req.user.userId || null,
-        updatedBy: req.user.uid || req.user.userId || null,
+        createdBy: req.user.uid,
+        updatedBy: req.user.uid,
       };
 
-      const tour = await TourModel.create(tourData);
+      const tour = await TourService.createTour(tourData);
 
       return ResponseUtil.success(
         res,
@@ -34,18 +34,17 @@ class TourController {
   async getTourById(req, res) {
     try {
       const { id } = req.params;
-      const tour = await TourModel.findById(id);
+      const tour = await TourService.getTourById(id);
 
-      if (!tour) {
+      return ResponseUtil.success(res, tour);
+    } catch (error) {
+      if (error.message === "Tour not found") {
         return ResponseUtil.error(
           res,
           MESSAGES.NOT_FOUND,
           HTTP_STATUS.NOT_FOUND
         );
       }
-
-      return ResponseUtil.success(res, tour);
-    } catch (error) {
       console.error("Error getting tour:", error);
       return ResponseUtil.error(
         res,
@@ -59,18 +58,17 @@ class TourController {
   async getTourBySlug(req, res) {
     try {
       const { slug } = req.params;
-      const tour = await TourModel.findBySlug(slug);
+      const tour = await TourService.getTourBySlug(slug);
 
-      if (!tour) {
+      return ResponseUtil.success(res, tour);
+    } catch (error) {
+      if (error.message === "Tour not found") {
         return ResponseUtil.error(
           res,
           MESSAGES.NOT_FOUND,
           HTTP_STATUS.NOT_FOUND
         );
       }
-
-      return ResponseUtil.success(res, tour);
-    } catch (error) {
       console.error("Error getting tour by slug:", error);
       return ResponseUtil.error(
         res,
@@ -97,7 +95,7 @@ class TourController {
         sortOrder: req.query.sortOrder || "desc",
       };
 
-      const result = await TourModel.findAll(options);
+      const result = await TourService.getAllTours(options);
 
       return ResponseUtil.success(res, result);
     } catch (error) {
@@ -116,10 +114,10 @@ class TourController {
       const { id } = req.params;
       const updateData = {
         ...req.body,
-        updatedBy: req.user.uid || req.user.userId || null,
+        updatedBy: req.user.uid,
       };
 
-      const tour = await TourModel.update(id, updateData);
+      const tour = await TourService.updateTour(id, updateData);
 
       if (!tour) {
         return ResponseUtil.error(
@@ -144,7 +142,7 @@ class TourController {
   async deleteTour(req, res) {
     try {
       const { id } = req.params;
-      await TourModel.delete(id);
+      await TourService.deleteTour(id);
 
       return ResponseUtil.success(res, null, MESSAGES.DELETED);
     } catch (error) {
@@ -163,7 +161,7 @@ class TourController {
       const { id } = req.params;
       const { status } = req.body;
 
-      const tour = await TourModel.updateStatus(id, status);
+      const tour = await TourService.updateTourStatus(id, status);
 
       return ResponseUtil.success(res, tour, MESSAGES.UPDATED);
     } catch (error) {
@@ -189,6 +187,7 @@ class TourController {
         maxPrice: req.query.maxPrice,
       };
 
+      // Search functionality is still basic in TourModel, but we route it through service
       const results = await TourModel.search(q, options);
 
       return ResponseUtil.success(res, results);
@@ -211,7 +210,7 @@ class TourController {
         limit: parseInt(req.query.limit) || 10,
       };
 
-      const result = await TourModel.findByDestination(destinationId, options);
+      const result = await TourService.getAllTours({ ...options, destinationId });
 
       return ResponseUtil.success(res, result);
     } catch (error) {
@@ -227,7 +226,7 @@ class TourController {
   // Get tour statistics
   async getTourStatistics(req, res) {
     try {
-      const stats = await TourModel.getStatistics();
+      const stats = await TourService.getTourStatistics();
 
       return ResponseUtil.success(res, stats);
     } catch (error) {
@@ -246,7 +245,7 @@ class TourController {
       const { id } = req.params;
       const { images } = req.body;
 
-      const tour = await TourModel.addImages(id, images);
+      const tour = await TourService.addImages(id, images);
 
       return ResponseUtil.success(res, tour, MESSAGES.UPDATED);
     } catch (error) {
@@ -264,7 +263,7 @@ class TourController {
     try {
       const { id, imageUrl } = req.params;
 
-      const tour = await TourModel.removeImage(id, decodeURIComponent(imageUrl));
+      const tour = await TourService.removeImage(id, decodeURIComponent(imageUrl));
 
       return ResponseUtil.success(res, tour, MESSAGES.UPDATED);
     } catch (error) {
@@ -283,7 +282,7 @@ class TourController {
       const { id } = req.params;
       const { coverImage } = req.body;
 
-      const tour = await TourModel.setCoverImage(id, coverImage);
+      const tour = await TourService.setCoverImage(id, coverImage);
 
       return ResponseUtil.success(res, tour, MESSAGES.UPDATED);
     } catch (error) {
@@ -302,7 +301,7 @@ class TourController {
       const { id } = req.params;
       const dateData = req.body;
 
-      const tour = await TourModel.addAvailableDate(id, dateData);
+      const tour = await TourService.addAvailableDate(id, dateData);
 
       return ResponseUtil.success(res, tour, MESSAGES.UPDATED);
     } catch (error) {
@@ -321,7 +320,7 @@ class TourController {
       const { id, dateIndex } = req.params;
       const dateData = req.body;
 
-      const tour = await TourModel.updateAvailableDate(
+      const tour = await TourService.updateAvailableDate(
         id,
         parseInt(dateIndex),
         dateData
@@ -343,7 +342,7 @@ class TourController {
     try {
       const { id, dateIndex } = req.params;
 
-      const tour = await TourModel.removeAvailableDate(id, parseInt(dateIndex));
+      const tour = await TourService.removeAvailableDate(id, parseInt(dateIndex));
 
       return ResponseUtil.success(res, tour, MESSAGES.UPDATED);
     } catch (error) {

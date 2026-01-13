@@ -401,22 +401,22 @@ function renderBookingInfo(tour) {
 // HANDLE BOOK NOW
 // ========================================
 function handleBookNow() {
-  if (!selectedDate) {
-    alert("Please select a date first");
+  if (!currentTour) {
+    alert("Tour information not loaded");
     return;
   }
 
-  // TODO: Implement booking functionality
-  alert(
-    `Booking functionality coming soon!\n\nTour: ${
-      currentTour.name
-    }\nDate: ${formatDateRange(
-      selectedDate.startDate,
-      selectedDate.endDate
-    )}\nPrice: ${formatPrice(
-      selectedDate.price || currentTour.price?.adult || 0
-    )}`
-  );
+  // Use tour ID if available, otherwise use slug
+  const tourIdentifier = currentTour.id || currentTour._id || currentTour.slug;
+  
+  if (!tourIdentifier) {
+    alert("Cannot identify tour");
+    console.error("Tour object:", currentTour);
+    return;
+  }
+
+  // Redirect to booking page with tour ID (with trailing slash to prevent redirect)
+  window.location.href = `/booking/?tourId=${tourIdentifier}`;
 }
 
 // ========================================

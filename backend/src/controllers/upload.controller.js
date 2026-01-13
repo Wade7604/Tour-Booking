@@ -8,7 +8,7 @@ class UploadController {
   async uploadAvatar(req, res) {
     try {
       // Get userId from params (admin upload for others) or from authenticated user (own upload)
-      const userId = req.params.userId || req.user.userId;
+      const userId = req.params.userId || req.user.uid;
 
       if (!req.file) {
         return res.status(400).json({
@@ -21,7 +21,7 @@ class UploadController {
       CloudinaryService.validateImageFile(req.file);
 
       // If uploading for own account (no userId in params), ensure it matches authenticated user
-      if (!req.params.userId && userId !== req.user.userId) {
+      if (!req.params.userId && userId !== req.user.uid) {
         return res.status(403).json({
           success: false,
           message: "You can only upload your own avatar",

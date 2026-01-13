@@ -12,7 +12,7 @@ class UserController {
    */
   getOwnProfile = async (req, res) => {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.uid;
       const user = await UserService.getUserById(userId);
 
       return ResponseUtil.success(res, user);
@@ -31,7 +31,7 @@ class UserController {
    */
   updateOwnProfile = async (req, res) => {
     try {
-      const userId = req.user.userId;
+      const userId = req.user.uid;
       const { email, fullName, phone, avatar } = req.body;
 
       // Only allow updating specific fields
@@ -210,7 +210,7 @@ class UserController {
       const { id } = req.params;
 
       // Prevent user from deleting themselves
-      if (id === req.user.userId) {
+      if (id === req.user.uid) {
         return ResponseUtil.badRequest(
           res,
           "You cannot delete your own account"
@@ -271,7 +271,7 @@ class UserController {
       }
 
       // Prevent changing own role
-      if (id === req.user.userId) {
+      if (id === req.user.uid) {
         return ResponseUtil.badRequest(res, "You cannot change your own role");
       }
 

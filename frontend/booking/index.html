@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Tour - TourBooking</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/booking.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="bi bi-compass-fill"></i>
+          <span>TourBooking</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <a class="nav-link" href="/#tours">Tours</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/#destinations">Destinations</a>
+            </li>
+            <li class="nav-item" id="adminNavItem" style="display: none">
+              <a class="nav-link" href="/admin">
+                <i class="bi bi-person-gear"></i> Admin
+              </a>
+            </li>
+            <li class="nav-item ms-3">
+              <button
+                id="authBtn"
+                class="btn btn-gradient"
+                onclick="handleAuth()"
+              >
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-3 text-muted">Loading tour details...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="container mt-5" style="display: none">
+      <div class="alert alert-danger text-center">
+        <h4><i class="bi bi-exclamation-triangle"></i> Error</h4>
+        <p id="errorText">Something went wrong. Please try again.</p>
+        <a href="/" class="btn btn-gradient mt-3">
+          <i class="bi bi-house"></i> Back to Home
+        </a>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div id="bookingForm" class="booking-container" style="display: none">
+      <div class="container py-5">
+        <!-- Progress Steps -->
+        <div class="booking-progress">
+          <div class="progress-step active" data-step="1">
+            <div class="step-circle">1</div>
+            <div class="step-label">Date & Guests</div>
+          </div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="2">
+            <div class="step-circle">2</div>
+            <div class="step-label">Your Info</div>
+          </div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="3">
+            <div class="step-circle">3</div>
+            <div class="step-label">Participants</div>
+          </div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="4">
+            <div class="step-circle">4</div>
+            <div class="step-label">Review</div>
+          </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+          <!-- Left Column - Form Steps -->
+          <div class="col-lg-8">
+            <div class="booking-form-card">
+              <!-- Step 1: Date & Participants -->
+              <div class="form-step active" id="step1">
+                <h2 class="step-title">
+                  <i class="bi bi-calendar-check"></i> Select Date & Number of Guests
+                </h2>
+
+                <div class="form-section">
+                  <label class="form-label required">Departure Date</label>
+                  <select class="form-select" id="selectedDate" required>
+                    <option value="">Choose a date...</option>
+                  </select>
+                  <div class="form-text">Available dates for this tour</div>
+                </div>
+
+                <div class="form-section">
+                  <label class="form-label required">Number of Participants</label>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label-sm">Adults (18+)</label>
+                      <div class="number-input">
+                        <button type="button" class="btn-decrease" onclick="decreaseValue('adults')">-</button>
+                        <input type="number" id="adults" class="form-control text-center" value="1" min="0" max="20" readonly>
+                        <button type="button" class="btn-increase" onclick="increaseValue('adults')">+</button>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label-sm">Children (2-17)</label>
+                      <div class="number-input">
+                        <button type="button" class="btn-decrease" onclick="decreaseValue('children')">-</button>
+                        <input type="number" id="children" class="form-control text-center" value="0" min="0" max="20" readonly>
+                        <button type="button" class="btn-increase" onclick="increaseValue('children')">+</button>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label-sm">Infants (0-1)</label>
+                      <div class="number-input">
+                        <button type="button" class="btn-decrease" onclick="decreaseValue('infants')">-</button>
+                        <input type="number" id="infants" class="form-control text-center" value="0" min="0" max="20" readonly>
+                        <button type="button" class="btn-increase" onclick="increaseValue('infants')">+</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="participant-summary mt-3">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Total: <strong id="totalParticipants">1</strong> participant(s)</span>
+                  </div>
+                </div>
+
+                <div class="form-navigation">
+                  <button type="button" class="btn btn-gradient" onclick="nextStep()">
+                    Next <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 2: Customer Information -->
+              <div class="form-step" id="step2">
+                <h2 class="step-title">
+                  <i class="bi bi-person-fill"></i> Your Information
+                </h2>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label required">Full Name</label>
+                    <input type="text" class="form-control" id="fullName" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label required">Email</label>
+                    <input type="email" class="form-control" id="email" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label required">Phone Number</label>
+                    <input type="tel" class="form-control" id="phone" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Nationality</label>
+                    <input type="text" class="form-control" id="nationality">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" id="address">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Passport Number</label>
+                    <input type="text" class="form-control" id="passportNumber">
+                  </div>
+                </div>
+
+                <div class="form-section mt-4">
+                  <h4 class="subsection-title">Emergency Contact</h4>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Contact Name</label>
+                      <input type="text" class="form-control" id="emergencyName">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Relationship</label>
+                      <input type="text" class="form-control" id="emergencyRelationship">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="emergencyPhone">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-navigation">
+                  <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                    <i class="bi bi-arrow-left"></i> Back
+                  </button>
+                  <button type="button" class="btn btn-gradient" onclick="nextStep()">
+                    Next <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 3: Participant Details -->
+              <div class="form-step" id="step3">
+                <h2 class="step-title">
+                  <i class="bi bi-people-fill"></i> Participant Details
+                </h2>
+
+                <div id="participantForms"></div>
+
+                <div class="form-section">
+                  <label class="form-label">Special Requirements</label>
+                  <textarea class="form-control" id="specialRequests" rows="3" placeholder="Any dietary restrictions, medical conditions, or special requests..."></textarea>
+                </div>
+
+                <div class="form-navigation">
+                  <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                    <i class="bi bi-arrow-left"></i> Back
+                  </button>
+                  <button type="button" class="btn btn-gradient" onclick="nextStep()">
+                    Next <i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 4: Review & Confirm -->
+              <div class="form-step" id="step4">
+                <h2 class="step-title">
+                  <i class="bi bi-clipboard-check"></i> Review Your Booking
+                </h2>
+
+                <div class="review-section">
+                  <h4 class="review-section-title">Tour Details</h4>
+                  <div class="review-content" id="reviewTourDetails"></div>
+                </div>
+
+                <div class="review-section">
+                  <h4 class="review-section-title">Your Information</h4>
+                  <div class="review-content" id="reviewCustomerInfo"></div>
+                </div>
+
+                <div class="review-section">
+                  <h4 class="review-section-title">Participants</h4>
+                  <div class="review-content" id="reviewParticipants"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="termsAccepted" required>
+                    <label class="form-check-label" for="termsAccepted">
+                      I accept the <a href="#" target="_blank">terms and conditions</a> and <a href="#" target="_blank">cancellation policy</a>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-navigation">
+                  <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">
+                    <i class="bi bi-arrow-left"></i> Back
+                  </button>
+                  <button type="button" class="btn btn-gradient" id="submitBookingBtn" onclick="submitBooking()">
+                    <i class="bi bi-check-circle"></i> Confirm Booking
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column - Pricing Summary -->
+          <div class="col-lg-4">
+            <div class="pricing-sidebar sticky-top">
+              <div class="pricing-card">
+                <h3 class="pricing-title">Booking Summary</h3>
+
+                <div class="tour-summary" id="tourSummary">
+                  <div class="tour-image-small">
+                    <img id="tourImageSmall" src="" alt="">
+                  </div>
+                  <h4 id="tourNameSummary">-</h4>
+                </div>
+
+                <div class="pricing-breakdown">
+                  <div class="pricing-row">
+                    <span>Adults × <span id="adultCount">0</span></span>
+                    <span id="adultTotal">0 VNĐ</span>
+                  </div>
+                  <div class="pricing-row">
+                    <span>Children × <span id="childCount">0</span></span>
+                    <span id="childTotal">0 VNĐ</span>
+                  </div>
+                  <div class="pricing-row">
+                    <span>Infants × <span id="infantCount">0</span></span>
+                    <span id="infantTotal">0 VNĐ</span>
+                  </div>
+                  <div class="pricing-divider"></div>
+                  <div class="pricing-row pricing-subtotal">
+                    <span>Subtotal</span>
+                    <span id="subtotalAmount">0 VNĐ</span>
+                  </div>
+                  <div class="pricing-divider"></div>
+                  <div class="pricing-row pricing-deposit">
+                    <span>Deposit (40%)</span>
+                    <span id="depositAmount">0 VNĐ</span>
+                  </div>
+                  <div class="pricing-row pricing-total">
+                    <span>Total Amount</span>
+                    <span id="totalAmount">0 VNĐ</span>
+                  </div>
+                </div>
+
+                <div class="pricing-note">
+                  <i class="bi bi-info-circle"></i>
+                  <span>You'll pay the deposit now and the remaining amount before the tour</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container text-center">
+        <p class="mb-0" style="font-size: 1.1rem">
+          &copy; 2026 TourBooking. Made with Trường Thịnh & Thiện Nhân in
+          Vietnam
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth-middleware.js"></script>
+    <script src="../assets/js/booking.js"></script>
+  </body>
+</html>

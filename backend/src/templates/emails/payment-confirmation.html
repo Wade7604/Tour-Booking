@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán thành công</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f7fa;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 40px 30px; text-align: center;">
+                            <div style="width: 80px; height: 80px; background-color: #ffffff; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 48px;">✓</span>
+                            </div>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">
+                                Thanh Toán Thành Công!
+                            </h1>
+                            <p style="margin: 10px 0 0; color: #d1fae5; font-size: 16px;">
+                                Chúng tôi đã nhận được thanh toán của bạn
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Transaction Info -->
+                    <tr>
+                        <td style="padding: 30px; text-align: center; background-color: #f0fdf4;">
+                            <p style="margin: 0 0 10px; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                                Mã giao dịch
+                            </p>
+                            <h2 style="margin: 0; color: #059669; font-size: 24px; font-weight: 700; letter-spacing: 1px;">
+                                {{transactionId}}
+                            </h2>
+                        </td>
+                    </tr>
+
+                    <!-- Payment Details -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <h3 style="margin: 0 0 20px; color: #1e293b; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                                💳 Chi tiết thanh toán
+                            </h3>
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px; width: 40%;">Mã booking:</td>
+                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{bookingCode}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Số tiền:</td>
+                                    <td style="padding: 8px 0; color: #059669; font-size: 18px; font-weight: 700;">{{amount}} VNĐ</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Phương thức:</td>
+                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{paymentMethod}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Thời gian:</td>
+                                    <td style="padding: 8px 0; color: #1e293b; font-size: 14px; font-weight: 600;">{{paidAt}}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Updated Balance -->
+                    <tr>
+                        <td style="padding: 0 30px 30px;">
+                            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 8px; padding: 20px; text-align: center;">
+                                <p style="margin: 0 0 5px; color: #64748b; font-size: 13px;">Số tiền còn lại</p>
+                                <h2 style="margin: 0; color: #059669; font-size: 32px; font-weight: 700;">{{remainingAmount}} VNĐ</h2>
+                                {{#if isFullyPaid}}
+                                <p style="margin: 10px 0 0; color: #166534; font-size: 14px; font-weight: 600;">
+                                    🎉 Bạn đã thanh toán đầy đủ!
+                                </p>
+                                {{/if}}
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Tour Info Summary -->
+                    <tr>
+                        <td style="padding: 0 30px 30px;">
+                            <h3 style="margin: 0 0 15px; color: #1e293b; font-size: 16px; font-weight: 600;">
+                                🗺️ Thông tin tour
+                            </h3>
+                            <p style="margin: 0; color: #64748b; font-size: 14px; line-height: 1.6;">
+                                <strong style="color: #1e293b;">{{tourName}}</strong><br>
+                                Ngày khởi hành: {{startDate}}<br>
+                                Số người: {{totalParticipants}} người
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- CTA -->
+                    <tr>
+                        <td style="padding: 0 30px 40px; text-align: center;">
+                            <a href="{{bookingDetailUrl}}" style="display: inline-block; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
+                                Xem chi tiết booking
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 10px; color: #64748b; font-size: 14px;">
+                                Cảm ơn bạn đã thanh toán!
+                            </p>
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                © 2026 TourBooking. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
