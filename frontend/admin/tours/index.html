@@ -565,7 +565,9 @@
       
       // Initialize on page load
       document.addEventListener('DOMContentLoaded', () => {
-        // Init happens in tour.js via controller instantiation
+        // Init explicitly since it was removed from tour.js
+        controller = new TourAdminController();
+        controller.init();
       });
     </script>
   </body>

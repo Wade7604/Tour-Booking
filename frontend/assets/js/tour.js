@@ -943,11 +943,8 @@ class TourAdminController {
 
 // Initialize controller
 let controller;
+// Initialization moved to admin/tours/index.html to avoid redirects on public pages
 
-document.addEventListener("DOMContentLoaded", () => {
-  controller = new TourAdminController();
-  controller.init();
-});
 
 // Global functions for onclick handlers
 function openCreateModal() {
