@@ -5,6 +5,7 @@ async function checkAuth() {
   try {
     const user = await AuthMiddleware.getCurrentUser();
     const authBtn = document.getElementById("authBtn");
+    const profileDropdown = document.getElementById("profileDropdown");
 
     if (user) {
       authBtn.innerHTML = '<i class="bi bi-box-arrow-right"></i> Sign Out';
@@ -13,6 +14,17 @@ async function checkAuth() {
           AuthMiddleware.logout();
         }
       };
+
+      // Show profile dropdown
+      if (profileDropdown) {
+        profileDropdown.style.display = "block";
+      }
+
+      // Update navbar avatar
+      const navbarAvatar = document.getElementById("navbarAvatar");
+      if (navbarAvatar && user.avatar) {
+        navbarAvatar.src = user.avatar;
+      }
 
       // Check admin access
       const hasAdminAccess = await AuthMiddleware.hasAnyPermission([
@@ -23,7 +35,10 @@ async function checkAuth() {
       ]);
 
       if (hasAdminAccess) {
-        document.getElementById("adminNavItem").style.display = "block";
+        const adminDropdownItem = document.getElementById("adminDropdownItem");
+        const adminDropdownLink = document.getElementById("adminDropdownLink");
+        if (adminDropdownItem) adminDropdownItem.style.display = "block";
+        if (adminDropdownLink) adminDropdownLink.style.display = "block";
       }
     }
   } catch (error) {

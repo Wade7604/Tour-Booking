@@ -171,6 +171,46 @@ class API {
     });
   }
 
+  // User Profile endpoints
+  static async updateOwnProfile(profileData) {
+    return this.request("/users/me", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  // Bookings endpoints
+  static async getMyBookings(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return this.request(`/bookings/my-bookings?${queryString}`, {
+      method: "GET",
+    });
+  }
+
+  static async getBookingById(bookingId) {
+    return this.request(`/bookings/${bookingId}`, {
+      method: "GET",
+    });
+  }
+
+  static async getBookingByCode(bookingCode) {
+    return this.request(`/bookings/code/${bookingCode}`, {
+      method: "GET",
+    });
+  }
+
+  static async cancelBooking(bookingId, data) {
+    return this.request(`/bookings/${bookingId}/cancel`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Generic image upload
+  static async uploadImage(formData) {
+    return this.uploadRequest("/uploads/image", formData);
+  }
+
   // Upload endpoints
   static async uploadAvatar(file, userId = null) {
     try {

@@ -43,15 +43,26 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto align-items-center">
             <li class="nav-item">
-              <a class="nav-link" href="/#tours">Tours</a>
+              <a class="nav-link" href="/tour">Tours</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/#destinations">Destinations</a>
             </li>
-            <li class="nav-item" id="adminNavItem" style="display: none">
-              <a class="nav-link" href="/admin">
-                <i class="bi bi-person-gear"></i> Admin
+            <li class="nav-item dropdown" id="profileDropdown" style="display: none">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="me-2">Profile</span>
+                <img id="navbarAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
               </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-fill"></i> My Profile</a></li>
+                <li><a class="dropdown-item" href="/my-bookings"><i class="bi bi-calendar-check"></i> My Bookings</a></li>
+                <li id="adminDropdownItem" style="display: none"><hr class="dropdown-divider"></li>
+                <li id="adminDropdownLink" style="display: none">
+                  <a class="dropdown-item" href="/admin">
+                    <i class="bi bi-person-gear"></i> Admin
+                  </a>
+                </li>
+              </ul>
             </li>
             <li class="nav-item ms-3">
               <button
@@ -362,6 +373,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth-middleware.js"></script>
+    <script src="../assets/js/navbar-auth.js"></script>
     <script src="../assets/js/booking.js"></script>
   </body>
 </html>
