@@ -108,7 +108,7 @@ class GeminiService {
     return {
       tours,
       destinations,
-      systemPrompt: `You are an intelligent travel assistant for TravelVietnam, a professional travel company in Vietnam.
+      systemPrompt: `You are an intelligent travel assistant for TourBooking, a professional travel company in Vietnam.
 
 ## Available Data:
 
