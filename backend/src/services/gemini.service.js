@@ -160,12 +160,34 @@ When suggesting tours, include the following JSON block. IMPORTANT: Use the EXAC
       // Find JSON block in response
       const suggestionsMatch = text.match(/```suggestions\n?([\s\S]*?)\n?```/);
       if (suggestionsMatch) {
-        const parsed = JSON.parse(suggestionsMatch[1]);
-        if (parsed.tours) suggestions.tours = parsed.tours;
-        if (parsed.destinations) suggestions.destinations = parsed.destinations;
+        const jsonString = suggestionsMatch[1].trim();
+        
+        // Check if JSON looks complete (has closing braces)
+        if (!jsonString.endsWith('}')) {
+          console.warn('Incomplete JSON block detected in Gemini response');
+          return suggestions; // Return empty suggestions
+        }
+        
+        const parsed = JSON.parse(jsonString);
+        
+        // Validate and sanitize tours
+        if (Array.isArray(parsed.tours)) {
+          suggestions.tours = parsed.tours.filter(tour => 
+            tour && typeof tour === 'object' && tour.slug && tour.name
+          );
+        }
+        
+        // Validate and sanitize destinations
+        if (Array.isArray(parsed.destinations)) {
+          suggestions.destinations = parsed.destinations.filter(dest => 
+            dest && typeof dest === 'object' && dest.slug && dest.name
+          );
+        }
       }
     } catch (error) {
-      console.error("Error parsing suggestions:", error);
+      console.error("Error parsing suggestions:", error.message);
+      console.warn("Malformed JSON in Gemini response - suggestions will be skipped");
+      // Return empty suggestions instead of crashing
     }
 
     return suggestions;
@@ -173,7 +195,18 @@ When suggesting tours, include the following JSON block. IMPORTANT: Use the EXAC
 
   // Clean response text (remove JSON block for display)
   _cleanResponseText(text) {
-    return text.replace(/```suggestions\n?[\s\S]*?\n?```/g, '').trim();
+    // Only remove complete suggestion blocks (those with closing ```)
+    const cleanedText = text.replace(/```suggestions\n?([\s\S]*?)\n?```/g, '').trim();
+    
+    // If there's an incomplete block (starts with ```suggestions but no closing)
+    // Remove it to avoid showing malformed JSON to user
+    const incompleteMatch = cleanedText.match(/```suggestions\n?([\s\S]*?)$/);
+    if (incompleteMatch) {
+      console.warn('Removing incomplete suggestion block from response');
+      return cleanedText.replace(/```suggestions\n?[\s\S]*$/, '').trim();
+    }
+    
+    return cleanedText;
   }
 
   // Main chat function
