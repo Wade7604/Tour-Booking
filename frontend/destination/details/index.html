@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Destination Details - TourBooking</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/destination-details.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="bi bi-compass-fill"></i>
+          <span>TourBooking</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto align-items-center">
+            <li class="nav-item">
+              <a class="nav-link" href="/tour">Tours</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/destination">Destinations</a>
+            </li>
+            <li class="nav-item dropdown" id="profileDropdown" style="display: none">
+              <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="me-2">Profile</span>
+                <img id="navbarAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-fill"></i> My Profile</a></li>
+                <li><a class="dropdown-item" href="/my-bookings"><i class="bi bi-calendar-check"></i> My Bookings</a></li>
+                <li id="adminDropdownItem" style="display: none"><hr class="dropdown-divider"></li>
+                <li id="adminDropdownLink" style="display: none">
+                  <a class="dropdown-item" href="/admin">
+                    <i class="bi bi-person-gear"></i> Admin
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item ms-3">
+              <button
+                id="authBtn"
+                class="btn btn-gradient"
+                onclick="handleAuth()"
+              >
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-3 text-muted">Loading destination details...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="container mt-5" style="display: none">
+      <div class="alert alert-danger text-center">
+        <h4><i class="bi bi-exclamation-triangle"></i> Destination Not Found</h4>
+        <p>The destination you're looking for doesn't exist or has been removed.</p>
+        <a href="/destination" class="btn btn-gradient mt-3">
+          <i class="bi bi-arrow-left"></i> Back to Destinations
+        </a>
+      </div>
+    </div>
+
+    <!-- Destination Details Content -->
+    <div id="destinationContent" style="display: none">
+      <!-- Hero Section -->
+      <section class="destination-hero">
+        <img id="heroImage" src="" alt="" class="destination-hero-image" />
+        <div class="destination-hero-overlay">
+          <div class="container">
+            <div class="destination-hero-content">
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="/">Home</a></li>
+                  <li class="breadcrumb-item"><a href="/destination">Destinations</a></li>
+                  <li class="breadcrumb-item active" id="breadcrumbName">...</li>
+                </ol>
+              </nav>
+              <h1 class="destination-hero-title" id="destinationTitle"></h1>
+              <div class="destination-hero-meta" id="destinationMeta"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content -->
+      <section class="destination-main-content py-5">
+        <div class="container">
+          <div class="row g-5">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+              <!-- Image Gallery -->
+              <div class="destination-section">
+                <h2 class="destination-section-title">
+                  <i class="bi bi-images"></i> Photo Gallery
+                </h2>
+                <div id="imageGallery" class="destination-gallery"></div>
+              </div>
+
+              <!-- Description -->
+              <div class="destination-section">
+                <h2 class="destination-section-title">
+                  <i class="bi bi-info-circle"></i> About This Destination
+                </h2>
+                <p class="destination-description" id="destinationDescription"></p>
+              </div>
+
+              <!-- Quick Facts -->
+              <div class="destination-section">
+                <h2 class="destination-section-title">
+                  <i class="bi bi-clipboard-data"></i> Quick Facts
+                </h2>
+                <div class="row g-3" id="quickFacts">
+                  <!-- Facts will be inserted here -->
+                </div>
+              </div>
+
+              <!-- Related Tours -->
+              <div class="destination-section" id="relatedToursSection" style="display: none">
+                <h2 class="destination-section-title">
+                  <i class="bi bi-compass"></i> Tours to This Destination
+                </h2>
+                <div id="relatedToursLoading" class="text-center py-4">
+                  <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  <p class="text-muted mt-2 mb-0">Loading tours...</p>
+                </div>
+                <div id="relatedToursGrid" class="row g-4" style="display: none">
+                  <!-- Tours will be inserted here -->
+                </div>
+                <div id="relatedToursEmpty" class="text-center py-4" style="display: none">
+                  <i class="bi bi-search text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+                  <p class="text-muted mt-2">No tours available for this destination yet.</p>
+                  <a href="/tour" class="btn btn-outline-primary btn-sm mt-2">
+                    <i class="bi bi-search"></i> Browse All Tours
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column - Info Sidebar -->
+            <div class="col-lg-4">
+              <div class="destination-sidebar">
+                <div class="destination-info-card">
+                  <div class="destination-info-header">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <h3>Location Details</h3>
+                  </div>
+                  <div class="destination-info-list" id="locationInfo">
+                    <!-- Location info will be inserted here -->
+                  </div>
+                </div>
+
+                <div class="destination-cta-card">
+                  <h4>Ready to Explore?</h4>
+                  <p>Discover amazing tours to this destination</p>
+                  <a href="/tour" class="btn btn-gradient w-100">
+                    <i class="bi bi-search"></i> Browse Tours
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container text-center">
+        <p class="mb-0" style="font-size: 1.1rem">
+          &copy; 2026 TourBooking. Made with Trường Thịnh & Thiện Nhân in
+          Vietnam
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/api.js"></script>
+    <script src="../../assets/js/auth-middleware.js"></script>
+    <script src="../../assets/js/navbar-auth.js"></script>
+    <script src="../../assets/js/destination.js"></script>
+    <script src="../../assets/js/destination-details.js"></script>
+  </body>
+</html>

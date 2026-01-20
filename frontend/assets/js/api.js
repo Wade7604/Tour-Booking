@@ -1,4 +1,4 @@
-const API_BASE_URL = " https://tour-booking-1-wbjc.onrender.com/api";
+const API_BASE_URL = " http://localhost:5000/api";
 
 class API {
   // Helper method to make requests
@@ -228,7 +228,7 @@ class API {
       ];
       if (!allowedTypes.includes(file.type)) {
         throw new Error(
-          "Invalid file type. Only JPEG, PNG, and WebP are allowed"
+          "Invalid file type. Only JPEG, PNG, and WebP are allowed",
         );
       }
 
@@ -278,7 +278,7 @@ class API {
           throw new Error(
             `File ${
               i + 1
-            }: Invalid file type. Only JPEG, PNG, and WebP are allowed`
+            }: Invalid file type. Only JPEG, PNG, and WebP are allowed`,
           );
         }
 
@@ -296,7 +296,7 @@ class API {
 
       return this.uploadRequest(
         `/uploads/destinations/${destinationId}/images`,
-        formData
+        formData,
       );
     } catch (error) {
       console.error("Upload Destination Images Error:", error);

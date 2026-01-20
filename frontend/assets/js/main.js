@@ -200,9 +200,9 @@ async function loadDestinations() {
       container.innerHTML = destinations
         .map(
           (dest) => `
-            <div class="destination-grid-card" onclick="viewDestinationDetail('${
-              dest.id
-            }')">
+            <div class="destination-grid-card" onclick='viewDestinationDetail(${JSON.stringify(
+              dest
+            )})'>
               <img
                 src="${
                   dest.images?.[0] ||
@@ -212,7 +212,7 @@ async function loadDestinations() {
               />
               <div class="destination-name">${dest.name}</div>
               <div class="destination-see-tours">
-                <i class="bi bi-arrow-right-circle"></i> See Tours
+                <i class="bi bi-arrow-right-circle"></i> Explore
               </div>
             </div>
           `
@@ -241,8 +241,10 @@ function viewTourDetail(tour) {
   window.location.href = `/tour/details/?slug=${slug}`;
 }
 
-function viewDestinationDetail(id) {
-  alert(`Destination detail: ${id}\n(Chức năng đang phát triển)`);
+function viewDestinationDetail(destination) {
+  // Accept either destination object or slug string
+  const slug = typeof destination === "string" ? destination : destination.slug;
+  window.location.href = `/destination/details/?slug=${slug}`;
 }
 
 // ========================================
