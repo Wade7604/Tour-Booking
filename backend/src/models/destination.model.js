@@ -80,8 +80,17 @@ class DestinationModel {
   async update(destId, updateData) {
     try {
       const destRef = this.collection.doc(destId);
+      
+      // Remove undefined values to prevent Firestore errors
+      const cleanedData = {};
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] !== undefined) {
+          cleanedData[key] = updateData[key];
+        }
+      });
+      
       const updatePayload = {
-        ...updateData,
+        ...cleanedData,
         updatedAt: new Date().toISOString(),
       };
 

@@ -493,6 +493,20 @@ class DestinationAdminController {
     document.getElementById("modalTitle").textContent = "Add Destination";
     document.getElementById("destinationForm").reset();
     document.getElementById("destinationId").value = "";
+    
+    // Show image upload section for create mode
+    const imageSection = document.getElementById("destinationImages").closest('.col-12');
+    if (imageSection) {
+      imageSection.style.display = 'block';
+    }
+    
+    // Clear preview
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    if (previewContainer) {
+      previewContainer.innerHTML = '';
+      previewContainer.style.display = 'none';
+    }
+    
     this.destinationModal.show();
   }
 
@@ -510,6 +524,13 @@ class DestinationAdminController {
         document.getElementById("destinationCity").value = dest.city;
         document.getElementById("destinationDescription").value = dest.description;
         document.getElementById("destinationStatus").value = dest.status;
+        
+        // Hide image upload section for edit mode (use Image Management Modal instead)
+        const imageSection = document.getElementById("destinationImages").closest('.col-12');
+        if (imageSection) {
+          imageSection.style.display = 'none';
+        }
+        
         this.destinationModal.show();
       }
     } catch (error) {
@@ -532,9 +553,24 @@ class DestinationAdminController {
     try {
       let result;
       if (id) {
+        // UPDATE mode - images are NOT updated here, use Image Management Modal
         result = await DestinationAPI.updateDestination(id, data);
       } else {
+        // CREATE mode - create destination first, then upload images if any
         result = await DestinationAPI.createDestination(data);
+        
+        // If creation successful and images are selected, upload them
+        if (result.success) {
+          const imageFiles = document.getElementById("destinationImages").files;
+          if (imageFiles && imageFiles.length > 0) {
+            try {
+              await API.uploadDestinationImages(result.data.id, imageFiles);
+            } catch (uploadError) {
+              console.error("Failed to upload images:", uploadError);
+              alert("Destination created but failed to upload images. You can upload them later.");
+            }
+          }
+        }
       }
 
       if (result.success) {
@@ -719,6 +755,87 @@ function saveDestination() {
 function uploadImages() {
   controller.uploadImages();
 }
+
+// Preview selected images
+function previewImages(input) {
+  const previewContainer = document.getElementById('imagePreviewContainer');
+  previewContainer.innerHTML = '';
+  
+  if (!input.files || input.files.length === 0) {
+    previewContainer.style.display = 'none';
+    return;
+  }
+  
+  previewContainer.style.display = 'flex';
+  
+  Array.from(input.files).forEach((file, index) => {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      const col = document.createElement('div');
+      col.className = 'col-4 col-md-3';
+      col.innerHTML = `
+        <div class="position-relative">
+          <img 
+            src="${e.target.result}" 
+            class="img-fluid rounded" 
+            style="height: 100px; width: 100%; object-fit: cover; border: 2px solid #e2e8f0;"
+            alt="Preview ${index + 1}"
+          />
+          <div class="position-absolute top-0 start-0 m-1">
+            <span class="badge bg-dark bg-opacity-75">
+              ${index + 1}
+            </span>
+          </div>
+        </div>
+      `;
+      previewContainer.appendChild(col);
+    };
+    
+    reader.readAsDataURL(file);
+  });
+}
+
+// Preview upload images in image management modal
+function previewUploadImages(input) {
+  const previewContainer = document.getElementById('uploadPreviewContainer');
+  previewContainer.innerHTML = '';
+  
+  if (!input.files || input.files.length === 0) {
+    previewContainer.style.display = 'none';
+    return;
+  }
+  
+  previewContainer.style.display = 'flex';
+  
+  Array.from(input.files).forEach((file, index) => {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      const col = document.createElement('div');
+      col.className = 'col-4 col-md-3';
+      col.innerHTML = `
+        <div class="position-relative">
+          <img 
+            src="${e.target.result}" 
+            class="img-fluid rounded" 
+            style="height: 100px; width: 100%; object-fit: cover; border: 2px solid #e2e8f0;"
+            alt="Upload Preview ${index + 1}"
+          />
+          <div class="position-absolute top-0 start-0 m-1">
+            <span class="badge bg-primary bg-opacity-75">
+              ${index + 1}
+            </span>
+          </div>
+        </div>
+      `;
+      previewContainer.appendChild(col);
+    };
+    
+    reader.readAsDataURL(file);
+  });
+}
+
 
 // Export for use in other files
 if (typeof module !== "undefined" && module.exports) {

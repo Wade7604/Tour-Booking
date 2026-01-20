@@ -328,10 +328,16 @@
                       id="destinationImages"
                       multiple
                       accept="image/*"
+                      onchange="previewImages(this)"
                     />
                     <small class="text-muted d-block mt-2">
                       <i class="bi bi-info-circle"></i> You can upload images after creating the destination
                     </small>
+                    
+                    <!-- Image Preview Container -->
+                    <div id="imagePreviewContainer" class="row g-2 mt-3" style="display: none;">
+                      <!-- Previews will be inserted here -->
+                    </div>
                   </div>
                 </div>
               </div>
@@ -388,6 +394,7 @@
                 id="uploadImages"
                 multiple
                 accept="image/*"
+                onchange="previewUploadImages(this)"
               />
               <button
                 class="btn btn-primary mt-2"
@@ -398,6 +405,11 @@
               <small class="text-muted d-block mt-2">
                 Maximum 10 images, 10MB each
               </small>
+              
+              <!-- Upload Preview Container -->
+              <div id="uploadPreviewContainer" class="row g-2 mt-3" style="display: none;">
+                <!-- Previews will be inserted here -->
+              </div>
             </div>
 
             <!-- Existing Images -->

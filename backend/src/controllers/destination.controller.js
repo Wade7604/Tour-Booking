@@ -95,7 +95,10 @@ class DestinationController {
   updateDestination = async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, slug, description, country, city, images } = req.body;
+      const { name, slug, description, country, city } = req.body;
+      
+      // Note: images are NOT updated here to prevent accidental data loss
+      // Use the dedicated /destinations/:id/images endpoints to manage images
 
       const destination = await DestinationService.updateDestination(id, {
         name,
@@ -103,7 +106,7 @@ class DestinationController {
         description,
         country,
         city,
-        images,
+        // images field is intentionally excluded
       });
 
       return ResponseUtil.success(res, destination, MESSAGES.UPDATED);
