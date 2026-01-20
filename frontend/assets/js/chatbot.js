@@ -220,6 +220,13 @@ class Chatbot {
           <h5><i class="bi bi-geo-alt"></i> ${dest.name}</h5>
           <p>${dest.reason || 'Popular destination'}</p>
         `;
+        card.addEventListener('click', () => {
+          if (dest.slug) {
+            window.location.href = `/destination/details/?slug=${dest.slug}`;
+          } else if (dest.id) {
+            window.location.href = `/destination/details/?slug=${dest.id}`;
+          }
+        });
         suggestionsDiv.appendChild(card);
       });
     }
