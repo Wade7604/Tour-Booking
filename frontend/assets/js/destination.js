@@ -738,9 +738,15 @@ class DestinationAdminController {
 // Initialize controller
 let controller;
 
+// Only initialize admin controller if we're on an admin page
+// Check for admin-specific elements to determine if this is an admin page
 document.addEventListener("DOMContentLoaded", () => {
-  controller = new DestinationAdminController();
-  controller.init();
+  const isAdminPage = document.getElementById("destinationsTableBody") !== null;
+  
+  if (isAdminPage) {
+    controller = new DestinationAdminController();
+    controller.init();
+  }
 });
 
 // Global functions for onclick handlers
