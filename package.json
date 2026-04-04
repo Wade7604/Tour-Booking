@@ -1,0 +1,35 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "[![Deployment](https://img.shields.io/badge/Deployment-Vercel-black?style=for-the-badge&logo=vercel)](https://tour-booking-bice.vercel.app/)",
+  "main": "index.js",
+  "scripts": {
+    "serve": "serve frontend -l 5500",
+    "cy:open": "start-server-and-test serve http://127.0.0.1:5500 \"cypress open --config baseUrl=http://127.0.0.1:5500\"",
+    "cy:run": "cypress run --config baseUrl=http://127.0.0.1:5500",
+    "cy:run:api": "cypress run --spec cypress/e2e/api-health.cy.js",
+    "cy:run:homepage": "start-server-and-test serve http://127.0.0.1:5500 \"cypress run --spec cypress/e2e/homepage.cy.js --config baseUrl=http://127.0.0.1:5500\"",
+    "cy:run:auth": "start-server-and-test serve http://127.0.0.1:5500 \"cypress run --spec cypress/e2e/auth.cy.js --config baseUrl=http://127.0.0.1:5500\"",
+    "cy:run:tours": "start-server-and-test serve http://127.0.0.1:5500 \"cypress run --spec cypress/e2e/tour-listing.cy.js --config baseUrl=http://127.0.0.1:5500\"",
+    "cy:run:responsive": "start-server-and-test serve http://127.0.0.1:5500 \"cypress run --spec cypress/e2e/responsive.cy.js --config baseUrl=http://127.0.0.1:5500\"",
+    "test": "start-server-and-test serve http://127.0.0.1:5500 cy:run",
+    "test:api": "cypress run --spec cypress/e2e/api-health.cy.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wade7604/tour-booking.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Wade7604/tour-booking/issues"
+  },
+  "homepage": "https://github.com/Wade7604/tour-booking#readme",
+  "devDependencies": {
+    "cypress": "^15.13.0",
+    "serve": "^14.2.6",
+    "start-server-and-test": "^3.0.0"
+  }
+}
