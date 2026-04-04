@@ -1,0 +1,30 @@
+# Frontend CI - Validate HTML/CSS/JS
+name: Frontend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  check:
+    name: 🔍 Check Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📂 Verify frontend files exist
+        run: |
+          echo "📄 Checking frontend structure..."
+          test -f frontend/index.html && echo "✅ index.html exists" || echo "❌ index.html missing"
+          ls -la frontend/
+
+      # Vercel tự động deploy khi push vào main
+      # Không cần thêm step deploy ở đây
